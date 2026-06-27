@@ -1455,11 +1455,256 @@ body::after {
   .modal-grid-item .item-meta { font-size: 9px; gap: 3px; }
   .modal .tag { font-size: 9px; padding: 1px 5px; }
 }
+
+/* ============================================================
+   START SCREEN STYLES
+   ============================================================ */
+#start-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: var(--bg-abyss);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  transition: opacity 1s var(--ease-out-expo), visibility 1s;
+}
+
+#start-screen.fade-out {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* 动态背景 */
+.start-bg-dynamic {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.grid-overlay {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--border-subtle) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border-subtle) 1px, transparent 1px);
+  background-size: 50px 50px;
+  background-position: center;
+  opacity: 0.15;
+  transform: perspective(500px) rotateX(60deg) translateY(0);
+  animation: gridScroll 20s linear infinite;
+}
+
+@keyframes gridScroll {
+  from { background-position: 0 0; }
+  to { background-position: 0 500px; }
+}
+
+.ambient-glow {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 20% 30%, rgba(0, 229, 255, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(168, 85, 247, 0.08) 0%, transparent 50%);
+  filter: blur(60px);
+}
+
+/* 标题设计 */
+.start-content {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+}
+
+.game-title {
+  text-align: center;
+  font-family: var(--font-display);
+  cursor: default;
+}
+
+.title-main {
+  display: block;
+  font-size: clamp(48px, 10vw, 84px);
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: 0.2em;
+  text-shadow:
+    0 0 10px var(--cyan),
+    0 0 20px var(--cyan),
+    0 0 40px var(--cyan-dim);
+  animation: neonPulse 2s ease-in-out infinite alternate;
+}
+
+.title-sub {
+  display: block;
+  font-size: clamp(14px, 3vw, 22px);
+  color: var(--purple-glow);
+  letter-spacing: 0.6em;
+  margin-top: 10px;
+  text-transform: uppercase;
+  text-shadow: 0 0 10px var(--purple);
+}
+
+@keyframes neonPulse {
+  from { text-shadow: 0 0 10px var(--cyan), 0 0 20px var(--cyan), 0 0 40px var(--cyan-dim); opacity: 0.9; }
+  to { text-shadow: 0 0 15px var(--cyan), 0 0 30px var(--cyan), 0 0 60px var(--cyan-glow), 0 0 10px #fff; opacity: 1; }
+}
+
+/* 分割线 */
+.start-divider {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+  max-width: 400px;
+}
+
+.start-divider .line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border-glow), transparent);
+}
+
+.start-divider .diamond {
+  width: 6px;
+  height: 6px;
+  background: var(--cyan);
+  transform: rotate(45deg);
+  box-shadow: 0 0 10px var(--cyan);
+}
+
+/* 按钮设计 */
+.start-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 280px;
+}
+
+.start-btn {
+  position: relative;
+  padding: 18px;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  cursor: pointer;
+  transition: all 0.3s;
+  overflow: hidden;
+}
+
+.btn-border {
+  position: absolute;
+  inset: 0;
+  border: 1px solid var(--border-glow);
+  clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%);
+}
+
+.start-btn.primary .btn-border {
+  border-color: var(--cyan);
+  background: rgba(0, 229, 255, 0.03);
+}
+
+.start-btn.primary:hover .btn-border {
+  background: rgba(0, 229, 255, 0.1);
+  box-shadow: inset 0 0 20px rgba(0, 229, 255, 0.2);
+}
+
+.start-btn.primary .btn-accent {
+  position: absolute;
+  top: 0; right: 20px;
+  width: 40px; height: 2px;
+  background: var(--cyan);
+  box-shadow: 0 0 10px var(--cyan);
+}
+
+.start-btn.secondary {
+  opacity: 0.6;
+}
+
+.start-btn.secondary .btn-border {
+  border-color: var(--text-tertiary);
+}
+
+.placeholder-tag {
+  position: absolute;
+  right: 15px; top: 50%;
+  transform: translateY(-50%);
+  font-size: 8px;
+  padding: 2px 4px;
+  border: 1px solid var(--text-tertiary);
+  color: var(--text-tertiary);
+}
+
+/* 页脚 */
+.start-footer {
+  position: absolute;
+  bottom: 40px;
+  text-align: center;
+  font-family: var(--font-mono);
+  color: var(--text-tertiary);
+}
+
+.footer-line { font-size: 11px; margin-bottom: 5px; letter-spacing: 0.1em; }
+.footer-copyright { font-size: 9px; opacity: 0.5; }
 </style>
 </head>
 <body>
 
-<div id="app">
+  <!-- ====== START SCREEN ====== -->
+  <div id="start-screen">
+    <!-- 动态背景层：流光与网格 -->
+    <div class="start-bg-dynamic">
+      <div class="grid-overlay"></div>
+      <div class="ambient-glow"></div>
+    </div>
+
+    <div class="start-content">
+      <!-- 游戏标题：霓虹效果 -->
+      <h1 class="game-title">
+        <span class="title-main">霓虹深渊</span>
+        <span class="title-sub">职业世界</span>
+      </h1>
+
+      <!-- 装饰性分割线 -->
+      <div class="start-divider">
+        <div class="line"></div>
+        <div class="diamond"></div>
+        <div class="line"></div>
+      </div>
+
+      <!-- 菜单按钮组 -->
+      <div class="start-menu">
+        <button class="start-btn primary" id="btn-start-game">
+          <span class="btn-text">开始游戏</span>
+          <div class="btn-border"></div>
+          <div class="btn-accent"></div>
+        </button>
+
+        <button class="start-btn secondary" id="btn-continue-game">
+          <span class="btn-text">继续游戏</span>
+          <div class="btn-border"></div>
+          <div class="placeholder-tag">NO DATA</div>
+        </button>
+      </div>
+
+      <!-- 底部版权/版本信息 -->
+      <div class="start-footer">
+        <div class="footer-line">NEON ABYSS OS v2.7.8</div>
+        <div class="footer-copyright">© 2026 SHENG CHENG TECHNOLOGY. ALL RIGHTS RESERVED.</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="app">
 
   <!-- ====== TOP BAR ====== -->
   <header id="topbar">
@@ -1670,9 +1915,9 @@ body::after {
 
   <div class="menu-divider"></div>
 
-  <div class="menu-item" data-action="aisettings">
-    <svg class="menu-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-    AI 接口与预设
+  <div class="menu-item" data-action="api_settings">
+    <svg class="menu-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 15a3 3 0 100-6 3 3 0 000 6z"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+    API 设置
   </div>
 
   <div class="menu-divider"></div>
@@ -1693,6 +1938,32 @@ body::after {
 /* ============================================================
    CORE TAVERNLIKE ENGINE
    ============================================================ */
+
+window.ChatHistory = [];
+
+function buildSystemPrompt() {
+  const lore = window.LorebookData || {};
+  const stats = window.GameState.data.stat_data;
+
+  return `你是一个赛博朋克+兽人背景的角色扮演游戏（RPG）后台引擎。
+当前时间：${stats["零七系统"].时间}，日期：${stats["零七系统"].日期}。
+世界设定关键点：
+- 星城：充满赛博感的高能浓度城市。
+- 兽人/亚兽人：拥有野兽特征和强大能量的种族，社会地位与人类共存但存在权力博弈。
+- 玩家背景：谢氏家族三子，玄阴体，天穹学府大一新生，职业为生命系灵医。
+
+你的回复必须严格遵循以下 XML 格式：
+1. <thinking>：你的内部逻辑推理。
+2. <maintext>：当前的剧情叙述、NPC 对话及环境描写。
+3. <option>：提供 3-4 个玩家接下来的行动或对话选项。
+4. <vars>：以 JSON 格式更新游戏状态（仅包含有变动的字段，例如 {"攻略目标":{"敖锐":{"好感度":1360}}}）。
+5. <sum>：对本次交互的简短总结。
+
+当前游戏状态：
+${JSON.stringify(stats, null, 2)}
+
+请注意：保持毒舌系统“零七”的存在感。`;
+}
 
 /**
  * StreamParser: Extract XML tags from LLM stream
@@ -1848,7 +2119,7 @@ window.GameState = {
       const newVars = JSON.parse(jsonStr);
       this.deepMerge(this.data.stat_data, newVars);
       this.refreshUI();
-      showToast('系统数据已同步', 'success');
+      // showToast('系统数据已同步', 'success');
     } catch (e) {
       console.error('Failed to merge vars:', e);
     }
@@ -1896,99 +2167,6 @@ window.GameState = {
     UIController.updateSystemStats(this.data.stat_data["零七系统"]);
     // Trigger global variable update event for legacy compatibility
     window.dispatchEvent(new CustomEvent('VARIABLE_UPDATE_ENDED'));
-  }
-};
-
-/**
- * AIClient: Handles communication with LLM APIs
- */
-window.AIClient = {
-  history: [],
-
-  async generate(userInput) {
-    const config = JSON.parse(localStorage.getItem('AI_CONFIG') || '{}');
-    const presets = JSON.parse(localStorage.getItem('AI_PRESETS') || '{}');
-
-    if (!config.apiKey) {
-      showToast('请先配置 API Key', 'error');
-      openModal('aisettings', 'AI 接口与预设');
-      return;
-    }
-
-    const systemPrompt = this.assemblePrompt(presets);
-    const messages = [
-      { role: 'system', content: systemPrompt },
-      ...this.history.slice(-10), // Keep last 10 messages for context
-      { role: 'user', content: userInput }
-    ];
-
-    try {
-      const response = await fetch(`${config.baseUrl}/chat/completions`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${config.apiKey}`
-        },
-        body: JSON.stringify({
-          model: config.model,
-          messages: messages,
-          stream: true
-        })
-      });
-
-      if (!response.ok) {
-        const err = await response.json();
-        throw new Error(err.error?.message || '网络请求失败');
-      }
-
-      this.history.push({ role: 'user', content: userInput });
-
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder('utf-8');
-      let aiResponseFull = '';
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        const chunk = decoder.decode(value);
-        const lines = chunk.split('\n');
-
-        for (const line of lines) {
-          if (line.startsWith('data: ') && line !== 'data: [DONE]') {
-            try {
-              const data = JSON.parse(line.slice(6));
-              const content = data.choices[0].delta?.content || '';
-              if (content) {
-                aiResponseFull += content;
-                parser.parse(content); // Pass to StreamParser
-              }
-            } catch (e) {}
-          }
-        }
-      }
-
-      this.history.push({ role: 'assistant', content: aiResponseFull });
-      return aiResponseFull;
-
-    } catch (e) {
-      showToast(`AI 连接错误: ${e.message}`, 'error');
-      console.error(e);
-    }
-  },
-
-  assemblePrompt(presets) {
-    const state = window.GameState.data.stat_data;
-    let p = `${presets.sysPrompt || ''}\n\n`;
-    p += `## 角色背景\n${presets.roleBio || ''}\n\n`;
-    p += `## 当前状态 (GameState)\n`;
-    p += `- 时间: ${state["零七系统"].时间}\n`;
-    p += `- 金钱: ${state["谢自国"].金钱}\n`;
-    p += `- 积分: ${state["零七系统"].积分}\n`;
-    p += `- 好感度状况: ${Object.entries(state["攻略目标"]).map(([n, c]) => `${n}:${c.好感度}(${c.好感度等级})`).join(', ')}\n\n`;
-    p += `## 写作风格\n${presets.styleHint || ''}\n\n`;
-    p += `## 输出格式规范\n必须使用以下标签包裹内容：\n<thinking>你的思考过程</thinking>\n<maintext>剧情正文</maintext>\n<option>交互选项（每行一个）</option>\n<vars>{"路径": 新值} JSON格式</vars>`;
-    return p;
   }
 };
 
@@ -2417,11 +2595,6 @@ const modalConfig = {
   },
 
 
-  aisettings: {
-    title: 'AI 接口与预设',
-    subtitle: '配置 API 关键信息与回复逻辑',
-    isAISettings: true
-  },
   checkin: {
     title: '每日签到',
     subtitle: '2778年 8月',
@@ -2436,6 +2609,14 @@ const modalConfig = {
     today: 31,
     get streak() {
       return window.GameState.data.stat_data["零七系统"].签到?.连续天数 || 0;
+    }
+  },
+  api_settings: {
+    title: 'API 设置',
+    subtitle: '配置 OpenAI 兼容的接口参数',
+    api_settings: true,
+    get settings() {
+      return JSON.parse(localStorage.getItem('API_SETTINGS') || '{"baseUrl":"https://api.openai.com/v1","apiKey":"","model":"gpt-4o","temp":0.7}');
     }
   }
 };
@@ -2543,100 +2724,109 @@ function openModal(key, label) {
     }
   };
 
-  if (config.isAISettings) {
-    const aiData = JSON.parse(localStorage.getItem('AI_CONFIG') || '{}');
-    const presets = JSON.parse(localStorage.getItem('AI_PRESETS') || '{}');
-
+  if (config.api_settings) {
+    const s = config.settings;
     const modalHTML = `
       <div class="modal-overlay" id="current-modal-overlay">
-        <div class="modal size-large" role="dialog" aria-labelledby="modal-title" style="max-width: 750px; height: 85vh; display: flex; flex-direction: column;">
+        <div class="modal size-small" role="dialog" aria-labelledby="modal-title">
           <button class="modal-close" id="modal-close-btn" aria-label="关闭">&times;</button>
           <div class="modal-title" id="modal-title">${config.title}</div>
           <div class="modal-subtitle">${config.subtitle}</div>
 
-          <div style="flex:1; overflow-y:auto; padding-right:8px; display:flex; flex-direction:column; gap:20px;">
-            <!-- API Key Section -->
-            <div class="glow-border-wrap" style="padding:1px; border-radius:8px;">
-              <div style="background:var(--bg-card); border-radius:7px; padding:16px;">
-                <div class="dossier-group-title">API 接口配置 (OpenAI 兼容)</div>
-                <div style="display:flex; flex-direction:column; gap:12px; margin-top:10px;">
-                  <div class="prop-row" style="flex-direction:column; align-items:flex-start; gap:4px; border:none;">
-                    <span class="prop-label">Base URL</span>
-                    <input type="text" id="ai-base-url" class="career-card" style="width:100%; border:1px solid var(--border-subtle); padding:8px; height:36px;" value="${aiData.baseUrl || 'https://api.openai.com/v1'}" placeholder="https://...">
-                  </div>
-                  <div class="prop-row" style="flex-direction:column; align-items:flex-start; gap:4px; border:none;">
-                    <span class="prop-label">API Key</span>
-                    <input type="password" id="ai-api-key" class="career-card" style="width:100%; border:1px solid var(--border-subtle); padding:8px; height:36px;" value="${aiData.apiKey || ''}" placeholder="sk-...">
-                  </div>
-                  <div class="prop-row" style="flex-direction:column; align-items:flex-start; gap:4px; border:none;">
-                    <span class="prop-label">Model Name</span>
-                    <input type="text" id="ai-model" class="career-card" style="width:100%; border:1px solid var(--border-subtle); padding:8px; height:36px;" value="${aiData.model || 'gpt-4o'}" placeholder="gpt-4o / claude-3-5-sonnet">
-                  </div>
-                </div>
-              </div>
+          <div class="stats-block" style="gap:16px;">
+            <div class="info-section">
+              <div class="info-section-label">API Base URL</div>
+              <input type="text" id="api-base" class="career-card" style="width:100%; background:rgba(6,6,14,0.6); color:var(--cyan); border:1px solid var(--border-glow); padding:10px; font-family:var(--font-mono); font-size:12px;" value="${s.baseUrl}" placeholder="https://api.openai.com/v1">
             </div>
 
-            <!-- Presets Section -->
-            <div class="glow-border-wrap" style="padding:1px; border-radius:8px; border-color:var(--purple);">
-              <div style="background:var(--bg-card); border-radius:7px; padding:16px;">
-                <div class="dossier-group-title" style="color:var(--purple-glow);">人格预设与提示词</div>
-                <div style="display:flex; flex-direction:column; gap:12px; margin-top:10px;">
-                  <div class="prop-row" style="flex-direction:column; align-items:flex-start; gap:4px; border:none;">
-                    <span class="prop-label">系统提示词 (System Prompt)</span>
-                    <textarea id="ai-sys-prompt" class="career-card" style="width:100%; height:80px; border:1px solid var(--border-subtle); padding:8px; resize:none;">${presets.sysPrompt || '你是一个资深的跑团DM和角色扮演者。请根据GameState和设定进行回复。'}</textarea>
-                  </div>
-                  <div class="prop-row" style="flex-direction:column; align-items:flex-start; gap:4px; border:none;">
-                    <span class="prop-label">角色背景 (Role Bio)</span>
-                    <textarea id="ai-role-bio" class="career-card" style="width:100%; height:80px; border:1px solid var(--border-subtle); padding:8px; resize:none;">${presets.roleBio || '玩家是谢自国，在这个赛博修仙世界中生存。'}</textarea>
-                  </div>
-                  <div class="prop-row" style="flex-direction:column; align-items:flex-start; gap:4px; border:none;">
-                    <span class="prop-label">回复风格 (Style)</span>
-                    <textarea id="ai-style-hint" class="career-card" style="width:100%; height:60px; border:1px solid var(--border-subtle); padding:8px; resize:none;">${presets.styleHint || '使用优美的中文散文风格，注重感官细节。'}</textarea>
-                  </div>
-                </div>
-              </div>
+            <div class="info-section">
+              <div class="info-section-label">API Key</div>
+              <input type="password" id="api-key" class="career-card" style="width:100%; background:rgba(6,6,14,0.6); color:var(--cyan); border:1px solid var(--border-glow); padding:10px; font-family:var(--font-mono); font-size:12px;" value="${s.apiKey}" placeholder="sk-...">
             </div>
-          </div>
 
-          <div style="padding-top:16px; display:flex; gap:10px;">
-            <button id="ai-save-btn" class="buy-btn" style="flex:1; height:44px; font-size:14px;">保存配置并刷新</button>
-            <button id="ai-test-btn" class="buy-btn" style="background:rgba(168,85,247,0.15); border:1px solid var(--purple); color:var(--purple-glow); flex:0 0 100px;">测试连通</button>
+            <div class="info-section">
+              <div class="info-section-label">Model Name</div>
+              <div style="display:flex; gap:8px;">
+                <input type="text" id="api-model" class="career-card" style="flex:1; background:rgba(6,6,14,0.6); color:var(--cyan); border:1px solid var(--border-glow); padding:10px; font-family:var(--font-mono); font-size:12px;" value="${s.model}" placeholder="gpt-4o">
+                <button id="fetch-models-btn" class="race-badge" style="cursor:pointer; white-space:nowrap; padding:0 12px; font-size:11px;">拉取模型</button>
+              </div>
+              <select id="model-select" class="career-card" style="display:none; width:100%; margin-top:8px; background:rgba(12,12,30,0.9); color:var(--cyan); border:1px solid var(--border-glow); padding:8px; font-size:12px;"></select>
+            </div>
+
+            <div class="info-section">
+              <div class="info-section-label">Temperature: <span id="temp-val">${s.temp}</span></div>
+              <input type="range" id="api-temp" min="0" max="2" step="0.1" value="${s.temp}" style="width:100%; accent-color:var(--cyan);">
+            </div>
+
+            <button id="save-api-btn" class="send-btn" style="width:100%; height:44px; margin-top:10px; background:linear-gradient(135deg, rgba(0,229,255,0.2) 0%, rgba(168,85,247,0.2) 100%); border:1px solid var(--cyan); color:var(--cyan); border-radius:6px; cursor:pointer; font-weight:700;">保存配置</button>
           </div>
         </div>
       </div>
     `;
-
     root.innerHTML = modalHTML;
+
     const overlay = document.getElementById('current-modal-overlay');
     const closeBtn = document.getElementById('modal-close-btn');
+    const tempInput = document.getElementById('api-temp');
+    const tempVal = document.getElementById('temp-val');
 
-    function closeModal() { root.innerHTML = ''; }
-    closeBtn.addEventListener('click', closeModal);
-    overlay.addEventListener('click', (e) => { if (e.target === overlay) closeModal(); });
+    tempInput.oninput = () => tempVal.textContent = tempInput.value;
 
-    document.getElementById('ai-save-btn').onclick = () => {
-      const data = {
-        baseUrl: document.getElementById('ai-base-url').value.trim(),
-        apiKey: document.getElementById('ai-api-key').value.trim(),
-        model: document.getElementById('ai-model').value.trim()
-      };
-      const pre = {
-        sysPrompt: document.getElementById('ai-sys-prompt').value,
-        roleBio: document.getElementById('ai-role-bio').value,
-        styleHint: document.getElementById('ai-style-hint').value
-      };
-      localStorage.setItem('AI_CONFIG', JSON.stringify(data));
-      localStorage.setItem('AI_PRESETS', JSON.stringify(pre));
-      showToast('配置已保存', 'success');
-      closeModal();
+    document.getElementById('fetch-models-btn').onclick = async () => {
+      const baseUrl = document.getElementById('api-base').value.trim();
+      const apiKey = document.getElementById('api-key').value.trim();
+      const btn = document.getElementById('fetch-models-btn');
+      const select = document.getElementById('model-select');
+      const input = document.getElementById('api-model');
+
+      if (!apiKey) return showToast('拉取模型需要 API Key', 'warning');
+
+      btn.textContent = '请求中...';
+      btn.disabled = true;
+
+      try {
+        const response = await fetch(`${baseUrl}/models`, {
+          headers: { 'Authorization': `Bearer ${apiKey}` }
+        });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data = await response.json();
+        const models = (data.data || []).map(m => m.id).sort();
+
+        if (models.length > 0) {
+          select.innerHTML = '<option value="">-- 选择模型 --</option>' + models.map(m => `<option value="${m}">${m}</option>`).join('');
+          select.style.display = 'block';
+          select.onchange = () => { if (select.value) input.value = select.value; };
+          showToast(`成功拉取 ${models.length} 个模型`, 'success');
+        } else {
+          showToast('未找到可用模型', 'info');
+        }
+      } catch (err) {
+        showToast('获取模型列表失败', 'error');
+        console.error(err);
+      } finally {
+        btn.textContent = '拉取模型';
+        btn.disabled = false;
+      }
     };
 
-    document.getElementById('ai-test-btn').onclick = async () => {
-      showToast('正在发起连接测试...', 'info');
-      // Logic for testing will be in the AIClient phase
+    document.getElementById('save-api-btn').onclick = () => {
+      const newSettings = {
+        baseUrl: document.getElementById('api-base').value.trim(),
+        apiKey: document.getElementById('api-key').value.trim(),
+        model: document.getElementById('api-model').value.trim(),
+        temp: parseFloat(tempInput.value)
+      };
+      localStorage.setItem('API_SETTINGS', JSON.stringify(newSettings));
+      showToast('API 配置已保存', 'success');
+      root.innerHTML = '';
     };
+
+    closeBtn.onclick = () => root.innerHTML = '';
+    overlay.onclick = (e) => { if (e.target === overlay) root.innerHTML = ''; };
     return;
   }
+
+  if (config.bag) {
     // Render as bag grid — only real items, pad last row with phantom cells
     const real = config.items.filter(Boolean);
     const pad = (5 - (real.length % 5)) % 5;
@@ -3604,52 +3794,81 @@ const parser = new StreamParser((text, type) => {
 async function sendMessage(text) {
   if (!text.trim()) return;
 
-  UIController.appendNarrative(`${text}`, 'player');
+  const settings = JSON.parse(localStorage.getItem('API_SETTINGS') || '{}');
+  if (!settings.apiKey) {
+    showToast('请先配置 API Key', 'warning');
+    openModal('api_settings', 'API 设置');
+    return;
+  }
+
+  UIController.appendNarrative(`\n> ${text}\n`, 'player');
   UIController.lastPara = null;
+  parser.reset();
 
-  // Use the real AIClient if configured, otherwise fallback to simulation
-  const config = JSON.parse(localStorage.getItem('AI_CONFIG') || '{}');
-  if (config.apiKey) {
-    parser.reset();
-    await window.AIClient.generate(text);
+  const messages = [
+    { role: 'system', content: buildSystemPrompt() },
+    ...window.ChatHistory,
+    { role: 'user', content: text }
+  ];
 
-    // After streaming ends, finalize tags
+  try {
+    const response = await fetch(`${settings.baseUrl}/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${settings.apiKey}`
+      },
+      body: JSON.stringify({
+        model: settings.model,
+        messages: messages,
+        stream: true,
+        temperature: settings.temp || 0.7
+      })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error?.message || `HTTP ${response.status}`);
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let assistantMessage = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      const chunk = decoder.decode(value);
+      const lines = chunk.split('\n');
+
+      for (const line of lines) {
+        if (line.startsWith('data: ') && line !== 'data: [DONE]') {
+          try {
+            const data = JSON.parse(line.slice(6));
+            const content = data.choices[0].delta?.content || '';
+            if (content) {
+              parser.parse(content);
+              assistantMessage += content;
+            }
+          } catch (e) {}
+        }
+      }
+    }
+
+    // Update History
+    window.ChatHistory.push({ role: 'user', content: text });
+    window.ChatHistory.push({ role: 'assistant', content: assistantMessage });
+    if (window.ChatHistory.length > 40) window.ChatHistory = window.ChatHistory.slice(-40);
+
+    // Final processing
     if (parser.tags.vars) window.GameState.mergeVars(parser.tags.vars);
     if (parser.tags.option) UIController.renderOptions(parser.tags.option);
     window.GameState.matchLore(parser.tags.maintext);
-  } else {
-    // Original Simulation Logic
-    const simulation = `
-<thinking>玩家输入了：${text}。演示模式：请配置API后体验真实AI。</thinking>
-<maintext>【请点击右侧菜单 -> AI接口与预设，配置你的API Key以开启真实对话】
-你收到了石磊的邀请，走进了别墅区G栋。这里的装修风格极其冷峻，充满了某种昂贵的科技感。
-敖锐坐在沙发上，手里端着一杯不知名的浅蓝色液体，看到你进来，他微微点头。</maintext>
-<option>配置 API Key
-再看看剧情模拟
-石磊，刚才谢谢你在门口等我</option>
-<vars>{
-  "谢自国": { "体温": 36.5 },
-  "零七系统": { "时间": "16:00" },
-  "攻略目标": {
-    "敖锐": { "好感度": 1360, "心情": "愉悦" },
-    "石磊": { "好感度": 1410 }
-  }
-}</vars>`;
 
-    let i = 0;
-    parser.reset();
-    const interval = setInterval(() => {
-      if (i < simulation.length) {
-        const chunk = simulation.slice(i, i + 10);
-        parser.parse(chunk);
-        i += 10;
-      } else {
-        clearInterval(interval);
-        if (parser.tags.vars) window.GameState.mergeVars(parser.tags.vars);
-        if (parser.tags.option) UIController.renderOptions(parser.tags.option);
-        window.GameState.matchLore(parser.tags.maintext);
-      }
-    }, 50);
+  } catch (err) {
+    showToast(`API 调用失败: ${err.message}`, 'error');
+    console.error(err);
   }
 }
 
@@ -3677,6 +3896,42 @@ fetch('职业世界 (3).json').then(r => r.json()).then(data => {
 }).catch(e => console.warn('JSON file not reachable via fetch, using default state.'));
 
 window.GameState.init();
+
+/* ============================================================
+   START SCREEN CONTROLLER
+   ============================================================ */
+document.addEventListener('DOMContentLoaded', () => {
+  const startScreen = document.getElementById('start-screen');
+  const btnStart = document.getElementById('btn-start-game');
+  const btnContinue = document.getElementById('btn-continue-game');
+
+  // 处理“开始游戏”
+  if (btnStart) {
+    btnStart.addEventListener('click', () => {
+      // 触发淡出动画
+      startScreen.classList.add('fade-out');
+
+      // 播放进入游戏的反馈
+      if (typeof showToast === 'function') {
+        setTimeout(() => {
+          showToast('连接已建立 · 正在加载神经链接', 'success');
+        }, 500);
+      }
+
+      console.log("Game started.");
+    });
+  }
+
+  // 处理“继续游戏” (占位逻辑)
+  if (btnContinue) {
+    btnContinue.addEventListener('click', () => {
+      if (typeof showToast === 'function') {
+        showToast('警告：未检测到有效的本地存档数据', 'error');
+      }
+    });
+  }
+});
+
 console.log(
   '%c◆ 霓虹深渊 · 职业世界 %c| %c中国赛博朋克 %c| %c暗色霓虹 + 传统纹样',
   'color:#00E5FF;font-size:16px;font-weight:700;',
