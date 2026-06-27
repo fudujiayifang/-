@@ -1670,6 +1670,13 @@ body::after {
 
   <div class="menu-divider"></div>
 
+  <div class="menu-item" data-action="aisettings">
+    <svg class="menu-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    AI 接口与预设
+  </div>
+
+  <div class="menu-divider"></div>
+
   <div class="menu-item fullscreen-item" data-action="fullscreen">
     <svg class="menu-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><polyline points="21 3 14 10"/><polyline points="3 21 10 14"/></svg>
     全屏模式
@@ -1889,6 +1896,99 @@ window.GameState = {
     UIController.updateSystemStats(this.data.stat_data["零七系统"]);
     // Trigger global variable update event for legacy compatibility
     window.dispatchEvent(new CustomEvent('VARIABLE_UPDATE_ENDED'));
+  }
+};
+
+/**
+ * AIClient: Handles communication with LLM APIs
+ */
+window.AIClient = {
+  history: [],
+
+  async generate(userInput) {
+    const config = JSON.parse(localStorage.getItem('AI_CONFIG') || '{}');
+    const presets = JSON.parse(localStorage.getItem('AI_PRESETS') || '{}');
+
+    if (!config.apiKey) {
+      showToast('请先配置 API Key', 'error');
+      openModal('aisettings', 'AI 接口与预设');
+      return;
+    }
+
+    const systemPrompt = this.assemblePrompt(presets);
+    const messages = [
+      { role: 'system', content: systemPrompt },
+      ...this.history.slice(-10), // Keep last 10 messages for context
+      { role: 'user', content: userInput }
+    ];
+
+    try {
+      const response = await fetch(`${config.baseUrl}/chat/completions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${config.apiKey}`
+        },
+        body: JSON.stringify({
+          model: config.model,
+          messages: messages,
+          stream: true
+        })
+      });
+
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.error?.message || '网络请求失败');
+      }
+
+      this.history.push({ role: 'user', content: userInput });
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder('utf-8');
+      let aiResponseFull = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value);
+        const lines = chunk.split('\n');
+
+        for (const line of lines) {
+          if (line.startsWith('data: ') && line !== 'data: [DONE]') {
+            try {
+              const data = JSON.parse(line.slice(6));
+              const content = data.choices[0].delta?.content || '';
+              if (content) {
+                aiResponseFull += content;
+                parser.parse(content); // Pass to StreamParser
+              }
+            } catch (e) {}
+          }
+        }
+      }
+
+      this.history.push({ role: 'assistant', content: aiResponseFull });
+      return aiResponseFull;
+
+    } catch (e) {
+      showToast(`AI 连接错误: ${e.message}`, 'error');
+      console.error(e);
+    }
+  },
+
+  assemblePrompt(presets) {
+    const state = window.GameState.data.stat_data;
+    let p = `${presets.sysPrompt || ''}\n\n`;
+    p += `## 角色背景\n${presets.roleBio || ''}\n\n`;
+    p += `## 当前状态 (GameState)\n`;
+    p += `- 时间: ${state["零七系统"].时间}\n`;
+    p += `- 金钱: ${state["谢自国"].金钱}\n`;
+    p += `- 积分: ${state["零七系统"].积分}\n`;
+    p += `- 好感度状况: ${Object.entries(state["攻略目标"]).map(([n, c]) => `${n}:${c.好感度}(${c.好感度等级})`).join(', ')}\n\n`;
+    p += `## 写作风格\n${presets.styleHint || ''}\n\n`;
+    p += `## 输出格式规范\n必须使用以下标签包裹内容：\n<thinking>你的思考过程</thinking>\n<maintext>剧情正文</maintext>\n<option>交互选项（每行一个）</option>\n<vars>{"路径": 新值} JSON格式</vars>`;
+    return p;
   }
 };
 
@@ -2317,6 +2417,11 @@ const modalConfig = {
   },
 
 
+  aisettings: {
+    title: 'AI 接口与预设',
+    subtitle: '配置 API 关键信息与回复逻辑',
+    isAISettings: true
+  },
   checkin: {
     title: '每日签到',
     subtitle: '2778年 8月',
@@ -2438,7 +2543,100 @@ function openModal(key, label) {
     }
   };
 
-  if (config.bag) {
+  if (config.isAISettings) {
+    const aiData = JSON.parse(localStorage.getItem('AI_CONFIG') || '{}');
+    const presets = JSON.parse(localStorage.getItem('AI_PRESETS') || '{}');
+
+    const modalHTML = `
+      <div class="modal-overlay" id="current-modal-overlay">
+        <div class="modal size-large" role="dialog" aria-labelledby="modal-title" style="max-width: 750px; height: 85vh; display: flex; flex-direction: column;">
+          <button class="modal-close" id="modal-close-btn" aria-label="关闭">&times;</button>
+          <div class="modal-title" id="modal-title">${config.title}</div>
+          <div class="modal-subtitle">${config.subtitle}</div>
+
+          <div style="flex:1; overflow-y:auto; padding-right:8px; display:flex; flex-direction:column; gap:20px;">
+            <!-- API Key Section -->
+            <div class="glow-border-wrap" style="padding:1px; border-radius:8px;">
+              <div style="background:var(--bg-card); border-radius:7px; padding:16px;">
+                <div class="dossier-group-title">API 接口配置 (OpenAI 兼容)</div>
+                <div style="display:flex; flex-direction:column; gap:12px; margin-top:10px;">
+                  <div class="prop-row" style="flex-direction:column; align-items:flex-start; gap:4px; border:none;">
+                    <span class="prop-label">Base URL</span>
+                    <input type="text" id="ai-base-url" class="career-card" style="width:100%; border:1px solid var(--border-subtle); padding:8px; height:36px;" value="${aiData.baseUrl || 'https://api.openai.com/v1'}" placeholder="https://...">
+                  </div>
+                  <div class="prop-row" style="flex-direction:column; align-items:flex-start; gap:4px; border:none;">
+                    <span class="prop-label">API Key</span>
+                    <input type="password" id="ai-api-key" class="career-card" style="width:100%; border:1px solid var(--border-subtle); padding:8px; height:36px;" value="${aiData.apiKey || ''}" placeholder="sk-...">
+                  </div>
+                  <div class="prop-row" style="flex-direction:column; align-items:flex-start; gap:4px; border:none;">
+                    <span class="prop-label">Model Name</span>
+                    <input type="text" id="ai-model" class="career-card" style="width:100%; border:1px solid var(--border-subtle); padding:8px; height:36px;" value="${aiData.model || 'gpt-4o'}" placeholder="gpt-4o / claude-3-5-sonnet">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Presets Section -->
+            <div class="glow-border-wrap" style="padding:1px; border-radius:8px; border-color:var(--purple);">
+              <div style="background:var(--bg-card); border-radius:7px; padding:16px;">
+                <div class="dossier-group-title" style="color:var(--purple-glow);">人格预设与提示词</div>
+                <div style="display:flex; flex-direction:column; gap:12px; margin-top:10px;">
+                  <div class="prop-row" style="flex-direction:column; align-items:flex-start; gap:4px; border:none;">
+                    <span class="prop-label">系统提示词 (System Prompt)</span>
+                    <textarea id="ai-sys-prompt" class="career-card" style="width:100%; height:80px; border:1px solid var(--border-subtle); padding:8px; resize:none;">${presets.sysPrompt || '你是一个资深的跑团DM和角色扮演者。请根据GameState和设定进行回复。'}</textarea>
+                  </div>
+                  <div class="prop-row" style="flex-direction:column; align-items:flex-start; gap:4px; border:none;">
+                    <span class="prop-label">角色背景 (Role Bio)</span>
+                    <textarea id="ai-role-bio" class="career-card" style="width:100%; height:80px; border:1px solid var(--border-subtle); padding:8px; resize:none;">${presets.roleBio || '玩家是谢自国，在这个赛博修仙世界中生存。'}</textarea>
+                  </div>
+                  <div class="prop-row" style="flex-direction:column; align-items:flex-start; gap:4px; border:none;">
+                    <span class="prop-label">回复风格 (Style)</span>
+                    <textarea id="ai-style-hint" class="career-card" style="width:100%; height:60px; border:1px solid var(--border-subtle); padding:8px; resize:none;">${presets.styleHint || '使用优美的中文散文风格，注重感官细节。'}</textarea>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style="padding-top:16px; display:flex; gap:10px;">
+            <button id="ai-save-btn" class="buy-btn" style="flex:1; height:44px; font-size:14px;">保存配置并刷新</button>
+            <button id="ai-test-btn" class="buy-btn" style="background:rgba(168,85,247,0.15); border:1px solid var(--purple); color:var(--purple-glow); flex:0 0 100px;">测试连通</button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    root.innerHTML = modalHTML;
+    const overlay = document.getElementById('current-modal-overlay');
+    const closeBtn = document.getElementById('modal-close-btn');
+
+    function closeModal() { root.innerHTML = ''; }
+    closeBtn.addEventListener('click', closeModal);
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) closeModal(); });
+
+    document.getElementById('ai-save-btn').onclick = () => {
+      const data = {
+        baseUrl: document.getElementById('ai-base-url').value.trim(),
+        apiKey: document.getElementById('ai-api-key').value.trim(),
+        model: document.getElementById('ai-model').value.trim()
+      };
+      const pre = {
+        sysPrompt: document.getElementById('ai-sys-prompt').value,
+        roleBio: document.getElementById('ai-role-bio').value,
+        styleHint: document.getElementById('ai-style-hint').value
+      };
+      localStorage.setItem('AI_CONFIG', JSON.stringify(data));
+      localStorage.setItem('AI_PRESETS', JSON.stringify(pre));
+      showToast('配置已保存', 'success');
+      closeModal();
+    };
+
+    document.getElementById('ai-test-btn').onclick = async () => {
+      showToast('正在发起连接测试...', 'info');
+      // Logic for testing will be in the AIClient phase
+    };
+    return;
+  }
     // Render as bag grid — only real items, pad last row with phantom cells
     const real = config.items.filter(Boolean);
     const pad = (5 - (real.length % 5)) % 5;
@@ -3406,17 +3604,28 @@ const parser = new StreamParser((text, type) => {
 async function sendMessage(text) {
   if (!text.trim()) return;
 
-  UIController.appendNarrative(`\n> ${text}\n`, 'player');
-  UIController.lastPara = null; // Force new paragraph for AI response
+  UIController.appendNarrative(`${text}`, 'player');
+  UIController.lastPara = null;
 
-  // Simulation of AI stream for Tavernlike demo
-  const simulation = `
-<thinking>玩家输入了：${text}。我需要推动剧情并更新状态。</thinking>
-<maintext>你收到了石磊的邀请，走进了别墅区G栋。这里的装修风格极其冷峻，充满了某种昂贵的科技感。
-敖锐坐在沙发上，手里端着一杯不知名的浅蓝色液体，看到你进来，他微微点头。
-“欢迎来到G栋，”他的声音依旧平淡，但眼神中透出一丝难得的温和，“你的房间在二楼左手边。”</maintext>
-<option>谢谢，我自己去收拾
-敖锐，你在喝什么？
+  // Use the real AIClient if configured, otherwise fallback to simulation
+  const config = JSON.parse(localStorage.getItem('AI_CONFIG') || '{}');
+  if (config.apiKey) {
+    parser.reset();
+    await window.AIClient.generate(text);
+
+    // After streaming ends, finalize tags
+    if (parser.tags.vars) window.GameState.mergeVars(parser.tags.vars);
+    if (parser.tags.option) UIController.renderOptions(parser.tags.option);
+    window.GameState.matchLore(parser.tags.maintext);
+  } else {
+    // Original Simulation Logic
+    const simulation = `
+<thinking>玩家输入了：${text}。演示模式：请配置API后体验真实AI。</thinking>
+<maintext>【请点击右侧菜单 -> AI接口与预设，配置你的API Key以开启真实对话】
+你收到了石磊的邀请，走进了别墅区G栋。这里的装修风格极其冷峻，充满了某种昂贵的科技感。
+敖锐坐在沙发上，手里端着一杯不知名的浅蓝色液体，看到你进来，他微微点头。</maintext>
+<option>配置 API Key
+再看看剧情模拟
 石磊，刚才谢谢你在门口等我</option>
 <vars>{
   "谢自国": { "体温": 36.5 },
@@ -3425,24 +3634,23 @@ async function sendMessage(text) {
     "敖锐": { "好感度": 1360, "心情": "愉悦" },
     "石磊": { "好感度": 1410 }
   }
-}</vars>
-<sum>你进入了别墅并与敖锐、石磊打了招呼。</sum>`;
+}</vars>`;
 
-  let i = 0;
-  parser.reset();
-  const interval = setInterval(() => {
-    if (i < simulation.length) {
-      const chunk = simulation.slice(i, i + 10);
-      parser.parse(chunk);
-      i += 10;
-    } else {
-      clearInterval(interval);
-      // Final processing
-      if (parser.tags.vars) window.GameState.mergeVars(parser.tags.vars);
-      if (parser.tags.option) UIController.renderOptions(parser.tags.option);
-      window.GameState.matchLore(parser.tags.maintext);
-    }
-  }, 50);
+    let i = 0;
+    parser.reset();
+    const interval = setInterval(() => {
+      if (i < simulation.length) {
+        const chunk = simulation.slice(i, i + 10);
+        parser.parse(chunk);
+        i += 10;
+      } else {
+        clearInterval(interval);
+        if (parser.tags.vars) window.GameState.mergeVars(parser.tags.vars);
+        if (parser.tags.option) UIController.renderOptions(parser.tags.option);
+        window.GameState.matchLore(parser.tags.maintext);
+      }
+    }, 50);
+  }
 }
 
 document.getElementById('send-btn').addEventListener('click', () => {
