@@ -1,0 +1,3483 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>霓虹深渊 · 职业世界</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   CSS CUSTOM PROPERTIES (for border glow animation)
+   ============================================================ */
+@property --glow-c1 {
+  syntax: '<color>';
+  inherits: false;
+  initial-value: #00e5ff;
+}
+@property --glow-c2 {
+  syntax: '<color>';
+  inherits: false;
+  initial-value: #00e5ff;
+}
+@property --glow-c3 {
+  syntax: '<color>';
+  inherits: false;
+  initial-value: #00e5ff;
+}
+
+/* ============================================================
+   ROOT TOKENS
+   ============================================================ */
+:root {
+  --bg-abyss: #06060E;
+  --bg-void:  #0C0C18;
+  --bg-card:  #111122;
+  --bg-elevated: #181830;
+  --border-subtle: #1E1E3A;
+  --border-glow: #2A2A50;
+
+  --cyan:       #00E5FF;
+  --cyan-dim:   #006E80;
+  --cyan-glow:  #00F0FF;
+  --purple:     #A855F7;
+  --purple-glow:#C084FC;
+  --gold:       #E2B04A;
+  --gold-glow:  #F5D07A;
+  --red:        #FF4757;
+  --green:      #2ED573;
+  --amber:      #F59E0B;
+
+  --text-primary:   #E8E4F0;
+  --text-secondary: #A09CB8;
+  --text-tertiary:  #5C5878;
+  --text-disabled:  #3A3654;
+
+  --font-mono:   'JetBrains Mono', monospace;
+  --font-display: 'Orbitron', system-ui, sans-serif;
+  --font-body:    'Noto Serif SC', 'SimSong', serif;
+  --font-ui:      'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-back: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-in-out:   cubic-bezier(0.65, 0, 0.35, 1);
+
+  --topbar-h: 48px;
+  --drawer-w: 280px;
+  --input-h: 56px;
+}
+
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; }
+body {
+  background: var(--bg-abyss);
+  color: var(--text-primary);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Ambient background layers */
+body::before {
+  content: ''; position: fixed; inset: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 50%, rgba(0,229,255,0.04) 0%, transparent 50%),
+    radial-gradient(ellipse 60% 80% at 80% 30%, rgba(168,85,247,0.03) 0%, transparent 50%),
+    radial-gradient(ellipse 50% 40% at 50% 80%, rgba(226,176,74,0.02) 0%, transparent 50%);
+  pointer-events: none; z-index: 0;
+}
+/* Chinese lattice texture */
+body::after {
+  content: ''; position: fixed; inset: 0;
+  background-image:
+    url("data:image/svg+xml,%3Csvg width='80' height='80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%2300E5FF' stroke-width='0.4' opacity='0.08'%3E%3Cpath d='M0 40 L80 40 M40 0 L40 80'/%3E%3Cpath d='M0 0 L80 80 M80 0 L0 80' opacity='0.3'/%3E%3Ccircle cx='40' cy='40' r='30'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 80px 80px;
+  opacity: 0.4; pointer-events: none; z-index: 0;
+}
+
+/* ============================================================
+   APP SHELL
+   ============================================================ */
+#app {
+  display: grid;
+  grid-template-rows: var(--topbar-h) 1fr;
+  grid-template-columns: 1fr;
+  grid-template-areas: "topbar" "main";
+  height: 100vh; position: relative; z-index: 1;
+}
+
+/* ============================================================
+   TOP BAR
+   ============================================================ */
+#topbar {
+  grid-area: topbar;
+  background: linear-gradient(180deg, rgba(12,12,24,0.98) 0%, rgba(12,12,24,0.92) 100%);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 16px; z-index: 10; position: relative;
+}
+/* Bottom neon line */
+#topbar::after {
+  content: ''; position: absolute; bottom: 0; left: 5%; right: 5%; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--cyan), var(--purple), var(--cyan), transparent);
+  opacity: 0.35;
+}
+/* Corner accents */
+#topbar::before {
+  content: ''; position: absolute; bottom: -1px; left: 16px;
+  width: 24px; height: 1px; background: var(--cyan); opacity: 0.8;
+  box-shadow: 0 0 8px var(--cyan-glow), 0 0 20px var(--cyan);
+}
+
+.topbar-group { display: flex; align-items: center; gap: 14px; }
+.topbar-group.center {
+  position: absolute; left: 50%; transform: translateX(-50%);
+  gap: 18px;
+}
+.topbar-sep {
+  width: 1px; height: 20px;
+  background: linear-gradient(180deg, transparent, var(--border-glow), transparent);
+}
+
+/* Hamburger trigger */
+.menu-trigger {
+  width: 38px; height: 38px;
+  background: transparent;
+  border: 1px solid var(--border-glow);
+  border-radius: 4px; cursor: pointer;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 5px;
+  transition: all 0.25s var(--ease-out-expo);
+  flex-shrink: 0; position: relative;
+}
+.menu-trigger:hover {
+  border-color: var(--cyan);
+  box-shadow: 0 0 12px rgba(0,229,255,0.2), inset 0 0 12px rgba(0,229,255,0.05);
+}
+.menu-trigger span {
+  display: block; width: 18px; height: 1.5px;
+  background: var(--text-secondary);
+  border-radius: 1px;
+  transition: all 0.3s var(--ease-out-expo);
+}
+.menu-trigger:hover span { background: var(--cyan); }
+.menu-trigger.active { border-color: var(--cyan); box-shadow: 0 0 16px rgba(0,229,255,0.3); }
+.menu-trigger.active span:nth-child(1) { transform: rotate(45deg) translate(4px, 4px); background: var(--cyan); }
+.menu-trigger.active span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+.menu-trigger.active span:nth-child(3) { transform: rotate(-45deg) translate(4px, -4px); background: var(--cyan); }
+
+/* DateTime */
+.topbar-date {
+  font-family: var(--font-display);
+  font-size: 13px; font-weight: 500;
+  color: var(--text-secondary);
+  letter-spacing: 0.08em;
+}
+.topbar-time {
+  font-family: var(--font-display);
+  font-size: 17px; font-weight: 700;
+  color: var(--cyan);
+  text-shadow: 0 0 16px rgba(0,229,255,0.5), 0 0 4px rgba(0,229,255,0.8);
+  letter-spacing: 0.06em;
+}
+.topbar-location {
+  font-size: 13px; color: var(--text-secondary);
+  display: flex; align-items: center; gap: 6px;
+}
+.topbar-location svg { width: 15px; height: 15px; color: var(--cyan); }
+
+/* Weather */
+.topbar-weather {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 13px; color: var(--text-secondary);
+}
+.topbar-weather svg { width: 18px; height: 18px; }
+.topbar-weather .temp {
+  font-family: var(--font-display);
+  font-size: 14px; font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* ============================================================
+   MAIN CONTENT AREA
+   ============================================================ */
+#main-area {
+  grid-area: main;
+  display: flex; flex-direction: column;
+  overflow: hidden; z-index: 2;
+}
+#narrative-scroll {
+  flex: 1; overflow: hidden;
+  padding: 20px 40px;
+  display: flex; flex-direction: column;
+}
+#narrative-scroll::-webkit-scrollbar { width: 5px; }
+#narrative-scroll::-webkit-scrollbar-track { background: transparent; }
+#narrative-scroll::-webkit-scrollbar-thumb {
+  background: var(--border-glow); border-radius: 3px;
+}
+#narrative-scroll::-webkit-scrollbar-thumb:hover { background: var(--text-tertiary); }
+
+.narrative-block {
+  max-width: 800px; margin: 0 auto;
+  width: 100%; height: 100%;
+  display: flex; flex-direction: column;
+}
+
+/* Paragraph entrance animation */
+.narrative-block p {
+  font-family: var(--font-body);
+  font-size: 16.5px; line-height: 1.9;
+  color: var(--text-primary);
+  margin-bottom: 18px;
+  letter-spacing: 0.015em;
+  animation: paraFadeIn 0.6s var(--ease-out-expo) both;
+}
+.narrative-block p:nth-child(1)  { animation-delay: 0s; }
+.narrative-block p:nth-child(2)  { animation-delay: 0.04s; }
+.narrative-block p:nth-child(3)  { animation-delay: 0.08s; }
+.narrative-block p:nth-child(4)  { animation-delay: 0.12s; }
+.narrative-block p:nth-child(5)  { animation-delay: 0.16s; }
+.narrative-block p:nth-child(6)  { animation-delay: 0.20s; }
+.narrative-block p:nth-child(7)  { animation-delay: 0.24s; }
+.narrative-block p:nth-child(8)  { animation-delay: 0.28s; }
+.narrative-block p:nth-child(9)  { animation-delay: 0.32s; }
+.narrative-block p:nth-child(10) { animation-delay: 0.36s; }
+.narrative-block p:nth-child(11) { animation-delay: 0.40s; }
+.narrative-block p:nth-child(12) { animation-delay: 0.44s; }
+.narrative-block p:nth-child(13) { animation-delay: 0.48s; }
+.narrative-block p:nth-child(14) { animation-delay: 0.52s; }
+.narrative-block p:nth-child(15) { animation-delay: 0.56s; }
+.narrative-block p:nth-child(16) { animation-delay: 0.60s; }
+.narrative-block p:nth-child(17) { animation-delay: 0.64s; }
+.narrative-block p:nth-child(18) { animation-delay: 0.68s; }
+.narrative-block p:nth-child(19) { animation-delay: 0.72s; }
+.narrative-block p:nth-child(20) { animation-delay: 0.76s; }
+
+@keyframes paraFadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* NPC name highlight */
+.narrative-block .npc-name {
+  color: var(--purple-glow);
+  font-weight: 600;
+  text-shadow: 0 0 8px rgba(168,85,247,0.4);
+  transition: text-shadow 0.3s;
+  cursor: default;
+}
+.narrative-block .npc-name:hover {
+  text-shadow: 0 0 16px rgba(168,85,247,0.7), 0 0 32px rgba(168,85,247,0.3);
+  color: #D8A0FF;
+}
+
+/* System message */
+.narrative-block .sys-msg {
+  display: block;
+  font-family: var(--font-mono); font-size: 12px;
+  color: var(--cyan);
+  padding: 10px 16px; margin: 24px 0;
+  background: linear-gradient(90deg, rgba(0,229,255,0.05) 0%, rgba(0,229,255,0.02) 100%);
+  border-left: 2px solid var(--cyan);
+  border-image: linear-gradient(180deg, var(--cyan), transparent) 1;
+  position: relative;
+  animation: sysGlow 3s ease-in-out infinite;
+}
+@keyframes sysGlow {
+  0%, 100% { box-shadow: 0 0 4px rgba(0,229,255,0.1); }
+  50%      { box-shadow: 0 0 12px rgba(0,229,255,0.2); }
+}
+
+/* Scene divider */
+.narrative-block .scene-divider {
+  display: flex; align-items: center; gap: 12px;
+  margin: 28px 0; color: var(--text-tertiary);
+  font-family: var(--font-display);
+  font-size: 10px; letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+.narrative-block .scene-divider::before,
+.narrative-block .scene-divider::after {
+  content: ''; flex: 1; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border-glow), transparent);
+}
+
+/* ============================================================
+   INPUT BAR
+   ============================================================ */
+#input-bar {
+  height: var(--input-h);
+  background: linear-gradient(180deg, rgba(12,12,24,0.95) 0%, rgba(12,12,24,0.98) 100%);
+  backdrop-filter: blur(16px);
+  border-top: 1px solid var(--border-subtle);
+  display: flex; align-items: center; gap: 12px;
+  padding: 0 20px; position: relative;
+}
+#input-bar::before {
+  content: ''; position: absolute; top: 0; left: 10%; right: 10%; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+  opacity: 0.25;
+}
+
+#player-input {
+  flex: 1; height: 40px;
+  background: rgba(6,6,14,0.6);
+  border: 1px solid var(--border-glow); border-radius: 6px;
+  padding: 0 16px;
+  color: var(--text-primary);
+  font-family: var(--font-ui); font-size: 14px;
+  outline: none;
+  transition: all 0.25s var(--ease-out-expo);
+}
+#player-input:focus {
+  border-color: var(--cyan);
+  box-shadow: 0 0 20px rgba(0,229,255,0.15), inset 0 0 20px rgba(0,229,255,0.03);
+}
+#player-input::placeholder { color: var(--text-tertiary); }
+
+#send-btn {
+  height: 40px; min-width: 80px; padding: 0 20px;
+  background: linear-gradient(135deg, rgba(0,229,255,0.1) 0%, rgba(168,85,247,0.1) 100%);
+  border: 1px solid var(--cyan);
+  border-radius: 6px;
+  color: var(--cyan);
+  font-family: var(--font-ui); font-size: 13px; font-weight: 500;
+  letter-spacing: 0.05em; cursor: pointer;
+  transition: all 0.3s var(--ease-out-expo);
+  display: flex; align-items: center; gap: 8px;
+  position: relative; overflow: hidden;
+}
+#send-btn::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(0,229,255,0.2) 0%, rgba(168,85,247,0.2) 100%);
+  opacity: 0; transition: opacity 0.3s;
+}
+#send-btn:hover::before { opacity: 1; }
+#send-btn:hover {
+  border-color: var(--cyan-glow);
+  box-shadow: 0 0 24px rgba(0,229,255,0.3), 0 0 48px rgba(0,229,255,0.1);
+  transform: translateY(-1px);
+}
+#send-btn:active { transform: translateY(0) scale(0.98); }
+#send-btn svg { width: 16px; height: 16px; position: relative; z-index: 1; }
+#send-btn span { position: relative; z-index: 1; }
+
+/* ============================================================
+   GLOW BORDER WRAPPER (from 老本美化)
+   ============================================================ */
+.glow-border-wrap {
+  position: relative;
+  padding: 2px;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.glow-border-wrap::before {
+  content: '';
+  position: absolute;
+  top: -50%; left: -50%;
+  width: 200%; height: 200%;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0%,
+    transparent 65%,
+    var(--glow-c1) 73%,
+    var(--glow-c2) 78%,
+    var(--glow-c3) 83%,
+    transparent 90%,
+    transparent 100%
+  );
+  animation: borderSpin 4s linear infinite, glowShift 6s ease-in-out infinite;
+  z-index: 0;
+}
+@keyframes borderSpin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+@keyframes glowShift {
+  0%   { --glow-c1: #00e5ff; --glow-c2: #00e5ff; --glow-c3: #00e5ff; }
+  25%  { --glow-c1: #e040fb; --glow-c2: #ff4081; --glow-c3: #ff9100; }
+  50%  { --glow-c1: #ff9100; --glow-c2: #ffea00; --glow-c3: #69f0ae; }
+  75%  { --glow-c1: #69f0ae; --glow-c2: #00e5ff; --glow-c3: #e040fb; }
+  100% { --glow-c1: #00e5ff; --glow-c2: #00e5ff; --glow-c3: #00e5ff; }
+}
+
+/* ============================================================
+   SCAN LINE EFFECT
+   ============================================================ */
+.scan-overlay {
+  position: relative;
+}
+.scan-overlay::after {
+  content: '';
+  position: absolute; top: -100%; left: 0;
+  width: 100%; height: 100%;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(0, 229, 255, 0.015) 45%,
+    rgba(0, 229, 255, 0.05) 50%,
+    rgba(0, 229, 255, 0.015) 55%,
+    transparent 100%
+  );
+  animation: scanLine 5s ease-in-out infinite;
+  pointer-events: none; z-index: 99;
+}
+@keyframes scanLine {
+  0% { top: -100%; }
+  50% { top: 100%; }
+  50.01% { top: -100%; }
+  100% { top: -100%; }
+}
+
+/* ============================================================
+   STATUS TAGS
+   ============================================================ */
+.tag {
+  display: inline-block;
+  font-size: 10px; font-weight: 500;
+  padding: 2px 7px; border-radius: 3px;
+  letter-spacing: 0.04em;
+}
+.tag-进行中 { background: rgba(0,229,255,0.12); color: #00e5ff; border: 1px solid rgba(0,229,255,0.2); }
+.tag-已完成 { background: rgba(105,240,174,0.12); color: #69f0ae; border: 1px solid rgba(105,240,174,0.2); }
+.tag-新     { background: rgba(255,145,0,0.12); color: #ff9100; border: 1px solid rgba(255,145,0,0.2); }
+.tag-待定   { background: rgba(158,158,158,0.12); color: #9e9e9e; border: 1px solid rgba(158,158,158,0.2); }
+
+/* Favorite level colors */
+.lv-陌生 { color: #666; }
+.lv-认识 { color: #aaa; }
+.lv-熟悉 { color: #4fc3f7; }
+.lv-好感 { color: #81c784; }
+.lv-亲密 { color: #ffb74d; }
+.lv-心动 { color: #f06292; }
+.lv-恋慕 { color: #e040fb; }
+.lv-挚爱 { color: #ff1744; }
+
+/* ============================================================
+   DRAWERS
+   ============================================================ */
+.drawer-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.55);
+  z-index: 25; opacity: 0; pointer-events: none;
+  transition: opacity 0.35s var(--ease-out-expo);
+  backdrop-filter: blur(4px);
+}
+.drawer-overlay.active { opacity: 1; pointer-events: auto; }
+
+/* === LEFT DRAWER === */
+#left-drawer {
+  position: fixed; left: 0; top: 0;
+  width: var(--drawer-w); height: 100vh;
+  background: linear-gradient(180deg, rgba(17,17,34,0.98) 0%, rgba(12,12,24,0.99) 100%);
+  backdrop-filter: blur(20px);
+  border-right: 1px solid var(--border-glow);
+  z-index: 30;
+  transform: translateX(-100%);
+  transition: transform 0.4s var(--ease-out-expo);
+  display: flex; flex-direction: column; gap: 14px;
+  padding: 24px 18px; overflow-y: auto;
+  box-shadow: 8px 0 40px rgba(0,0,0,0.6);
+}
+#left-drawer.open { transform: translateX(0); }
+
+/* Right-edge glow on left drawer */
+#left-drawer::after {
+  content: ''; position: absolute; top: 10%; right: 0; width: 1px; height: 80%;
+  background: linear-gradient(180deg, transparent, var(--cyan), var(--purple), transparent);
+  opacity: 0.3; pointer-events: none;
+}
+
+.drawer-section-title {
+  font-family: var(--font-display);
+  font-size: 11px; color: var(--cyan);
+  letter-spacing: 0.15em;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-subtle);
+  position: relative;
+}
+.drawer-section-title::after {
+  content: ''; position: absolute; bottom: -1px; left: 0;
+  width: 40px; height: 1px; background: var(--cyan);
+  box-shadow: 0 0 8px var(--cyan);
+}
+
+/* Avatar */
+.avatar-wrapper {
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+  padding-top: 6px;
+}
+.avatar-ring {
+  width: 88px; height: 88px; border-radius: 50%;
+  padding: 3px;
+  background: conic-gradient(from 0deg, var(--cyan), var(--purple), var(--cyan), var(--purple), var(--cyan));
+  animation: ringSpin 6s linear infinite;
+}
+@keyframes ringSpin { to { transform: rotate(360deg); } }
+
+.avatar-img {
+  width: 100%; height: 100%; border-radius: 50%;
+  background: radial-gradient(ellipse at 40% 35%, #1a1a4e 0%, #0a0a1e 100%);
+  display: flex; align-items: center; justify-content: center;
+  position: relative; overflow: hidden;
+}
+.avatar-img::before {
+  content: ''; position: absolute; top: 10%; left: 15%;
+  width: 30%; height: 15%; border-radius: 50%;
+  background: rgba(255,255,255,0.06);
+  transform: rotate(-30deg);
+}
+.avatar-placeholder {
+  font-size: 34px; color: var(--cyan);
+  opacity: 0.6;
+  font-family: var(--font-mono);
+  font-weight: 500;
+}
+.avatar-name {
+  font-family: var(--font-display);
+  font-size: 15px; font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: 0.06em;
+}
+.race-badge {
+  padding: 4px 12px;
+  border: 1px solid var(--cyan);
+  border-radius: 3px;
+  font-size: 11px; color: var(--cyan);
+  letter-spacing: 0.06em;
+  box-shadow: 0 0 10px rgba(0,229,255,0.12), inset 0 0 10px rgba(0,229,255,0.04);
+  transition: all 0.3s;
+}
+.race-badge:hover {
+  box-shadow: 0 0 20px rgba(0,229,255,0.25), inset 0 0 20px rgba(0,229,255,0.08);
+  transform: translateY(-1px);
+}
+
+/* Career card */
+.career-card {
+  background: linear-gradient(135deg, rgba(6,6,14,0.8) 0%, rgba(12,12,30,0.8) 100%);
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px; padding: 14px 16px;
+  position: relative; overflow: hidden;
+}
+.career-card::before {
+  content: ''; position: absolute; top: 0; left: 12px; right: 12px; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--purple), transparent);
+  opacity: 0.5;
+}
+.career-card::after {
+  content: ''; position: absolute; top: -50%; right: -30%;
+  width: 120px; height: 120px;
+  background: radial-gradient(circle, rgba(168,85,247,0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+.career-label {
+  font-size: 10px; color: var(--text-tertiary);
+  text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 6px;
+}
+.career-name {
+  font-size: 17px; font-weight: 700;
+  color: var(--text-primary);
+  font-family: var(--font-body);
+}
+.career-tier {
+  display: inline-flex; align-items: center; gap: 6px; margin-top: 8px;
+  font-family: var(--font-display); font-size: 11px; font-weight: 700;
+  color: var(--gold);
+  text-shadow: 0 0 10px rgba(226,176,74,0.4);
+}
+
+/* Stat bars */
+.stats-block { display: flex; flex-direction: column; gap: 10px; }
+.stat-row { display: flex; align-items: center; gap: 12px; }
+.stat-icon { width: 16px; height: 16px; flex-shrink: 0; opacity: 0.7; }
+.stat-label { font-size: 11px; color: var(--text-secondary); width: 28px; flex-shrink: 0; }
+.stat-bar-track {
+  flex: 1; height: 5px;
+  background: rgba(30,30,58,0.5); border-radius: 3px;
+  overflow: hidden; position: relative;
+}
+.stat-bar-track::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.03) 50%, transparent 100%);
+  animation: shimmer 2.5s ease-in-out infinite;
+}
+@keyframes shimmer { 0%, 100% { transform: translateX(-100%); } 50% { transform: translateX(100%); } }
+
+.stat-bar-fill {
+  height: 100%; border-radius: 3px;
+  transition: width 1s var(--ease-out-expo);
+  position: relative;
+}
+.stat-bar-fill::after {
+  content: ''; position: absolute; right: 0; top: 50%; transform: translateY(-50%);
+  width: 6px; height: 6px; border-radius: 50%;
+  background: white; opacity: 0.8;
+  box-shadow: 0 0 6px currentColor;
+}
+.stat-bar-fill.str { background: linear-gradient(90deg, #FF4757, #FF6B81); box-shadow: 0 0 10px rgba(255,71,87,0.3); }
+.stat-bar-fill.agi { background: linear-gradient(90deg, #00E5FF, #40F0FF); box-shadow: 0 0 10px rgba(0,229,255,0.3); }
+.stat-bar-fill.int { background: linear-gradient(90deg, #A855F7, #C084FC); box-shadow: 0 0 10px rgba(168,85,247,0.3); }
+.stat-bar-fill.end { background: linear-gradient(90deg, #E2B04A, #F5D07A); box-shadow: 0 0 10px rgba(226,176,74,0.3); }
+.stat-val {
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--text-primary); width: 26px; text-align: right;
+  font-weight: 500;
+}
+
+/* Info grid (pills) */
+.info-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+.info-pill {
+  background: rgba(30,30,58,0.4);
+  border: 1px solid var(--border-subtle);
+  border-radius: 4px;
+  padding: 7px 10px;
+  display: flex; flex-direction: column; gap: 2px;
+}
+.info-pill-key {
+  font-size: 9px; color: var(--text-tertiary);
+  text-transform: uppercase; letter-spacing: 0.08em;
+}
+.info-pill-val {
+  font-size: 11px; color: var(--text-primary);
+  font-weight: 500;
+}
+
+/* Info section */
+.info-section {
+  display: flex; flex-direction: column; gap: 4px;
+}
+.info-section-label {
+  font-size: 9px; color: var(--text-tertiary);
+  text-transform: uppercase; letter-spacing: 0.1em;
+  margin-bottom: 2px;
+}
+.info-detail {
+  font-size: 11px; color: var(--text-secondary);
+  line-height: 1.5;
+}
+.currency-row { display: flex; gap: 10px; padding-top: 4px; }
+.currency-item {
+  flex: 1;
+  background: linear-gradient(135deg, rgba(6,6,14,0.7) 0%, rgba(12,12,24,0.7) 100%);
+  border: 1px solid var(--border-subtle); border-radius: 6px;
+  padding: 10px 12px; text-align: center;
+  transition: all 0.3s var(--ease-out-expo);
+  position: relative; overflow: hidden;
+}
+.currency-item:hover {
+  border-color: var(--border-glow);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+}
+.currency-val {
+  font-family: var(--font-display);
+  font-size: 16px; font-weight: 700;
+  color: var(--gold);
+  text-shadow: 0 0 8px rgba(226,176,74,0.3);
+}
+.currency-label { font-size: 10px; color: var(--text-tertiary); margin-top: 3px; }
+
+/* ============================================================
+   RIGHT DRAWER — system menu
+   ============================================================ */
+#right-drawer {
+  position: fixed; right: 0; top: 0;
+  width: var(--drawer-w); height: 100vh;
+  background: linear-gradient(180deg, rgba(17,17,34,0.98) 0%, rgba(12,12,24,0.99) 100%);
+  backdrop-filter: blur(20px);
+  border-left: 1px solid var(--border-glow);
+  z-index: 30;
+  transform: translateX(100%);
+  transition: transform 0.4s var(--ease-out-expo);
+  display: flex; flex-direction: column; gap: 4px;
+  padding: 24px 18px;
+  box-shadow: -8px 0 40px rgba(0,0,0,0.6);
+}
+#right-drawer.open { transform: translateX(0); }
+
+/* Left-edge glow on right drawer */
+#right-drawer::before {
+  content: ''; position: absolute; top: 10%; left: 0; width: 1px; height: 80%;
+  background: linear-gradient(180deg, transparent, var(--cyan), var(--purple), transparent);
+  opacity: 0.3; pointer-events: none;
+}
+
+.menu-header {
+  font-family: var(--font-display);
+  font-size: 11px; color: var(--cyan);
+  letter-spacing: 0.15em;
+  padding-bottom: 12px; margin-bottom: 6px;
+  border-bottom: 1px solid var(--border-subtle);
+  position: relative;
+}
+.menu-header::after {
+  content: ''; position: absolute; bottom: -1px; left: 0;
+  width: 40px; height: 1px; background: var(--cyan);
+  box-shadow: 0 0 8px var(--cyan);
+}
+
+.menu-item {
+  display: flex; align-items: center; gap: 14px;
+  padding: 13px 16px;
+  border: 1px solid transparent; border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.25s var(--ease-out-expo);
+  color: var(--text-secondary);
+  font-size: 14px; font-weight: 400;
+  position: relative; overflow: hidden;
+}
+.menu-item::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(0,229,255,0.04) 0%, rgba(168,85,247,0.04) 100%);
+  opacity: 0; transition: opacity 0.25s;
+}
+.menu-item:hover::before { opacity: 1; }
+.menu-item:hover {
+  background: var(--bg-elevated);
+  border-color: var(--border-glow);
+  color: var(--text-primary);
+  transform: translateX(4px);
+}
+.menu-item:hover .menu-item-icon { color: var(--cyan); transform: scale(1.1); }
+.menu-item-icon {
+  width: 20px; height: 20px;
+  color: var(--text-tertiary);
+  transition: all 0.25s var(--ease-out-expo);
+  flex-shrink: 0;
+}
+.menu-item-badge {
+  margin-left: auto;
+  font-family: var(--font-display); font-size: 9px;
+  padding: 3px 8px; border-radius: 10px;
+  background: rgba(0,229,255,0.12); color: var(--cyan);
+  border: 1px solid rgba(0,229,255,0.2);
+  letter-spacing: 0.04em;
+}
+
+.menu-divider {
+  height: 1px; margin: 6px 8px;
+  background: linear-gradient(90deg, transparent, var(--border-subtle), transparent);
+}
+
+/* Fullscreen toggle special highlight */
+.menu-item.fullscreen-item:hover {
+  border-color: rgba(168,85,247,0.4);
+  background: linear-gradient(135deg, rgba(168,85,247,0.06) 0%, rgba(168,85,247,0.02) 100%);
+}
+
+/* ============================================================
+   TOAST NOTIFICATIONS
+   ============================================================ */
+#toast-container {
+  position: fixed; top: 60px; right: 24px;
+  z-index: 200;
+  display: flex; flex-direction: column; gap: 10px;
+  pointer-events: none;
+}
+.toast {
+  padding: 14px 20px; border-radius: 8px;
+  font-family: var(--font-ui); font-size: 13px;
+  color: var(--text-primary);
+  background: linear-gradient(135deg, rgba(17,17,34,0.95) 0%, rgba(17,17,34,0.9) 100%);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--border-glow);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  pointer-events: auto;
+  display: flex; align-items: center; gap: 10px;
+  animation: toastSlideIn 0.4s var(--ease-out-expo),
+             toastSlideOut 0.35s var(--ease-in-out) 2.6s forwards;
+  min-width: 280px;
+}
+.toast::before {
+  content: ''; width: 3px; align-self: stretch; border-radius: 2px;
+}
+.toast.info::before    { background: var(--cyan); box-shadow: 0 0 8px var(--cyan); }
+.toast.success::before { background: var(--green); box-shadow: 0 0 8px var(--green); }
+.toast.warning::before { background: var(--amber); box-shadow: 0 0 8px var(--amber); }
+.toast.error::before   { background: var(--red); box-shadow: 0 0 8px var(--red); }
+
+.toast-icon { width: 18px; height: 18px; flex-shrink: 0; }
+.toast.info .toast-icon    { color: var(--cyan); }
+.toast.success .toast-icon { color: var(--green); }
+.toast.warning .toast-icon { color: var(--amber); }
+.toast.error .toast-icon   { color: var(--red); }
+
+@keyframes toastSlideIn {
+  from { opacity: 0; transform: translateX(60px) scale(0.95); }
+  to   { opacity: 1; transform: translateX(0) scale(1); }
+}
+@keyframes toastSlideOut {
+  from { opacity: 1; transform: translateX(0) scale(1); }
+  to   { opacity: 0; transform: translateX(60px) scale(0.9); }
+}
+
+/* ============================================================
+   CHECK-IN CALENDAR
+   ============================================================ */
+.checkin-container {
+  display: flex; flex-direction: column; gap: 16px;
+}
+.checkin-header {
+  display: flex; justify-content: space-between; align-items: center;
+  background: rgba(30,30,58,0.3); padding: 12px 16px; border-radius: 8px;
+  border: 1px solid var(--border-subtle);
+}
+.checkin-streak {
+  font-size: 13px; color: var(--text-secondary);
+}
+.checkin-streak-num {
+  font-family: var(--font-display); font-size: 18px; font-weight: 700; color: var(--cyan);
+  text-shadow: 0 0 10px rgba(0,229,255,0.4); margin: 0 4px;
+}
+.checkin-btn {
+  background: linear-gradient(135deg, rgba(0,229,255,0.1) 0%, rgba(168,85,247,0.1) 100%);
+  border: 1px solid var(--cyan); border-radius: 6px;
+  padding: 8px 24px; color: var(--cyan);
+  font-family: var(--font-ui); font-size: 14px; font-weight: 600;
+  cursor: pointer; transition: all 0.25s var(--ease-out-expo);
+  box-shadow: 0 0 12px rgba(0,229,255,0.15);
+}
+.checkin-btn:hover {
+  background: linear-gradient(135deg, rgba(0,229,255,0.2) 0%, rgba(168,85,247,0.2) 100%);
+  box-shadow: 0 0 20px rgba(0,229,255,0.3); transform: translateY(-1px);
+}
+.checkin-btn.disabled {
+  background: rgba(30,30,58,0.5); border-color: var(--border-subtle);
+  color: var(--text-tertiary); box-shadow: none; cursor: not-allowed; transform: none;
+}
+
+.calendar-grid {
+  display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px;
+}
+.calendar-day-header {
+  text-align: center; font-size: 11px; color: var(--text-tertiary);
+  padding-bottom: 8px; font-weight: 500;
+}
+.calendar-cell {
+  aspect-ratio: 1;
+  background: rgba(6,6,14,0.6); border: 1px solid var(--border-subtle); border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-mono); font-size: 14px; color: var(--text-secondary);
+  position: relative; transition: all 0.2s;
+}
+.calendar-cell.empty { background: transparent; border-color: transparent; }
+.calendar-cell.signed {
+  background: rgba(46,213,115,0.1); border-color: rgba(46,213,115,0.3); color: var(--green);
+}
+.calendar-cell.signed::after {
+  content: '✓'; position: absolute; bottom: 2px; right: 4px;
+  font-size: 10px; color: var(--green); text-shadow: 0 0 4px var(--green);
+}
+.calendar-cell.today {
+  border-color: var(--cyan); box-shadow: inset 0 0 12px rgba(0,229,255,0.1);
+  color: var(--cyan); font-weight: 700;
+}
+
+.checkin-rewards {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 8px;
+}
+.reward-card {
+  background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 6px;
+  padding: 10px; text-align: center; position: relative; overflow: hidden;
+}
+.reward-card::before {
+  content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 2px;
+}
+.reward-card.days-7::before  { background: var(--purple); box-shadow: 0 0 8px var(--purple); }
+.reward-card.days-15::before { background: var(--gold); box-shadow: 0 0 8px var(--gold); }
+.reward-card.days-30::before { background: var(--cyan); box-shadow: 0 0 8px var(--cyan); }
+.reward-title { font-size: 10px; color: var(--text-tertiary); margin-bottom: 4px; }
+.reward-desc { font-size: 11px; color: var(--text-primary); }
+
+@media (max-width: 768px) {
+  .calendar-grid { gap: 4px; }
+  .calendar-cell { font-size: 12px; border-radius: 4px; }
+  .checkin-rewards { grid-template-columns: 1fr; gap: 6px; }
+  .reward-card { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; }
+  .reward-card::before { width: 3px; height: 100%; }
+  .reward-title { margin-bottom: 0; }
+}
+
+/* ============================================================
+   MODAL SYSTEM
+   ============================================================ */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.65);
+  z-index: 50;
+  display: flex; align-items: center; justify-content: center;
+  backdrop-filter: blur(6px);
+  animation: modalFadeIn 0.25s ease;
+}
+.modal {
+  background: linear-gradient(180deg, #141428 0%, #0E0E20 100%);
+  border: 1px solid var(--border-glow); border-radius: 12px;
+  padding: 32px 36px;
+  width: 95%; max-width: 560px; max-height: 82vh;
+  overflow-y: auto; position: relative;
+  box-shadow: 0 16px 64px rgba(0,0,0,0.6), 0 0 0 1px rgba(0,229,255,0.05);
+  animation: modalPopIn 0.35s var(--ease-out-back);
+}
+/* Width modifiers for different modal types */
+.modal.size-small { max-width: 420px; }
+.modal.size-medium { max-width: 480px; }
+.modal.size-large { max-width: 560px; }
+.modal::before {
+  content: ''; position: absolute; top: 0; left: 8%; right: 8%; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--cyan), var(--purple), transparent);
+  opacity: 0.6;
+}
+.modal-title {
+  font-family: var(--font-body); font-size: 22px; font-weight: 700;
+  color: var(--text-primary); margin-bottom: 6px;
+}
+.modal-subtitle { font-size: 13px; color: var(--text-tertiary); margin-bottom: 24px; }
+.modal-close {
+  position: absolute; top: 18px; right: 18px;
+  width: 32px; height: 32px;
+  background: transparent; border: 1px solid var(--border-subtle); border-radius: 8px;
+  color: var(--text-tertiary); cursor: pointer;
+  font-size: 18px; display: flex; align-items: center; justify-content: center;
+  transition: all 0.25s var(--ease-out-expo);
+}
+.modal-close:hover { border-color: var(--red); color: var(--red); background: rgba(255,71,87,0.08); }
+
+@keyframes modalFadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes modalPopIn {
+  from { opacity: 0; transform: scale(0.92) translateY(20px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* ============================================================
+   QUEST LIST
+   ============================================================ */
+.quest-list { display: flex; flex-direction: column; gap: 12px; }
+.quest-card {
+  background: linear-gradient(135deg, rgba(6,6,14,0.85) 0%, rgba(12,12,30,0.8) 100%);
+  border: 1px solid var(--border-subtle); border-radius: 10px;
+  padding: 18px 20px;
+  transition: all 0.25s var(--ease-out-expo);
+  cursor: pointer; position: relative; overflow: hidden;
+}
+.quest-card::before {
+  content: ''; position: absolute; top: 0; left: 0; width: 3px; height: 100%;
+  border-radius: 10px 0 0 10px;
+}
+.quest-card.status-进行中::before { background: var(--cyan); box-shadow: 0 0 10px var(--cyan); }
+.quest-card.status-新::before     { background: #ff9100; box-shadow: 0 0 8px rgba(255,145,0,0.4); }
+.quest-card.status-待定::before   { background: #9e9e9e; }
+.quest-card:hover {
+  border-color: var(--border-glow);
+  transform: translateX(3px);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+.quest-card-header {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 8px;
+}
+.quest-id {
+  font-family: var(--font-mono); font-size: 10px;
+  color: var(--text-tertiary); letter-spacing: 0.06em;
+  background: rgba(30,30,58,0.5); padding: 2px 8px; border-radius: 3px;
+}
+.quest-card-title {
+  font-family: var(--font-body);
+  font-size: 16px; font-weight: 700; color: var(--text-primary);
+  flex: 1;
+}
+.quest-type-badge {
+  font-size: 10px; padding: 2px 8px; border-radius: 3px;
+  letter-spacing: 0.04em; font-weight: 500;
+}
+.quest-type-主线 { background: rgba(255,215,0,0.12); color: #ffd700; border: 1px solid rgba(255,215,0,0.3); }
+.quest-type-支线 { background: rgba(0,229,255,0.1);  color: var(--cyan); border: 1px solid rgba(0,229,255,0.25); }
+.quest-type-社交 { background: rgba(168,85,247,0.1);  color: var(--purple-glow); border: 1px solid rgba(168,85,247,0.25); }
+.quest-type-日常 { background: rgba(105,240,174,0.1); color: var(--green); border: 1px solid rgba(105,240,174,0.25); }
+.quest-card-desc {
+  font-size: 12px; color: var(--text-secondary); line-height: 1.6;
+  margin-bottom: 10px;
+}
+.quest-card-meta {
+  display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+  font-size: 11px; color: var(--text-tertiary);
+}
+.quest-card-meta span {
+  display: flex; align-items: center; gap: 4px;
+}
+.quest-card-meta svg { width: 14px; height: 14px; opacity: 0.6; }
+
+/* Quest tabs */
+.quest-tabs {
+  display: flex; gap: 8px; margin-bottom: 16px;
+  border-bottom: 1px solid var(--border-subtle); padding-bottom: 8px;
+}
+.quest-tab {
+  padding: 6px 16px;
+  background: transparent; border: 1px solid var(--border-subtle);
+  border-radius: 6px; color: var(--text-tertiary);
+  font-family: var(--font-ui); font-size: 13px; font-weight: 500;
+  cursor: pointer; transition: all 0.2s var(--ease-out-expo);
+}
+.quest-tab:hover { border-color: var(--border-glow); color: var(--text-secondary); }
+.quest-tab.active {
+  border-color: var(--cyan); color: var(--cyan);
+  background: rgba(0,229,255,0.06);
+  box-shadow: 0 0 8px rgba(0,229,255,0.15);
+}
+.quest-tab-content { display: none; }
+.quest-tab-content.active { display: flex; flex-direction: column; gap: 12px; }
+.empty-state {
+  text-align: center; padding: 32px 0;
+  color: var(--text-tertiary); font-size: 13px;
+  font-style: italic;
+}
+
+@media (max-width: 768px) {
+  .quest-card { padding: 14px 16px; }
+  .quest-card-title { font-size: 14px; }
+  .quest-card-desc { font-size: 11px; }
+  .quest-card-meta { gap: 8px; font-size: 10px; }
+  .quest-tabs { gap: 4px; }
+  .quest-tab { padding: 4px 10px; font-size: 12px; }
+}
+
+/* ============================================================
+   ZERO-SEVEN SHOP
+   ============================================================ */
+.shop-header-row {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 16px; gap: 12px;
+}
+.shop-balance {
+  flex: 1;
+  display: flex; justify-content: space-between; align-items: center;
+  background: rgba(0,229,255,0.08); padding: 12px 16px; border-radius: 8px;
+  border: 1px solid rgba(0,229,255,0.2);
+}
+.refresh-btn {
+  height: 48px; padding: 0 16px;
+  background: rgba(168,85,247,0.1); border: 1px solid var(--purple);
+  border-radius: 8px; color: var(--purple-glow);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  cursor: pointer; transition: all 0.25s;
+}
+.refresh-btn:hover { background: rgba(168,85,247,0.2); box-shadow: 0 0 15px rgba(168,85,247,0.3); }
+.refresh-btn .btn-text { font-size: 13px; font-weight: 700; }
+.refresh-btn .btn-price { font-size: 10px; opacity: 0.8; }
+
+.balance-label { font-size: 12px; color: var(--cyan); letter-spacing: 0.05em; }
+.balance-value { font-family: var(--font-display); font-size: 18px; font-weight: 700; color: var(--cyan); text-shadow: 0 0 10px var(--cyan); }
+
+.shop-grid {
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;
+}
+.shop-card {
+  background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 6px;
+  padding: 8px; position: relative; transition: all 0.25s var(--ease-out-expo);
+  display: flex; flex-direction: column; gap: 4px;
+  min-height: 180px;
+}
+.shop-card-desc {
+  font-size: 10px; color: var(--text-tertiary); text-align: center;
+  line-height: 1.3; margin: 2px 0;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+  overflow: hidden; height: 39px;
+}
+.shop-card.rarity-SSR { border-color: var(--gold); box-shadow: inset 0 0 10px rgba(226,176,74,0.1); }
+.shop-card.rarity-SR  { border-color: var(--purple); }
+.shop-card.rarity-R   { border-color: var(--cyan); }
+
+.shop-card:hover { border-color: var(--cyan); transform: translateY(-2px); z-index: 5; }
+.shop-card-icon {
+  width: 32px; height: 32px; margin: 4px auto; color: var(--cyan);
+}
+.shop-card-name { font-size: 11px; font-weight: 700; text-align: center; color: var(--text-primary);
+  height: 32px; display: flex; align-items: center; justify-content: center; line-height: 1.2;
+}
+.shop-card-price {
+  font-family: var(--font-mono); font-size: 10px; color: var(--gold); text-align: center;
+  background: rgba(226,176,74,0.08); padding: 1px 0; border-radius: 3px;
+}
+.buy-btn {
+  width: 100%; padding: 4px 0; background: var(--cyan); border: none; border-radius: 3px;
+  color: var(--bg-abyss); font-weight: 700; font-size: 10px; cursor: pointer;
+  transition: all 0.2s; margin-top: auto;
+}
+.buy-btn:hover { background: var(--cyan-glow); box-shadow: 0 0 12px var(--cyan); }
+
+.roast-bubble {
+  position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%) translateY(-4px);
+  width: 120px; background: var(--purple); color: white; padding: 6px 10px;
+  border-radius: 6px; font-size: 10px; line-height: 1.3; pointer-events: none;
+  opacity: 0; transition: all 0.3s var(--ease-out-back); z-index: 20;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+.roast-bubble::after {
+  content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+  border: 5px solid transparent; border-top-color: var(--purple);
+}
+.shop-card:hover .roast-bubble { opacity: 1; transform: translateX(-50%) translateY(-8px); }
+
+/* Item Detail Sub-Modal */
+.item-detail-view {
+  display: flex; flex-direction: column; gap: 16px;
+  animation: detailFadeIn 0.3s var(--ease-out-expo);
+}
+@keyframes detailFadeIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+.detail-header { display: flex; align-items: center; gap: 12px; }
+.detail-icon-wrap {
+  width: 64px; height: 64px; background: rgba(0,229,255,0.05);
+  border: 1px solid var(--cyan); border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--cyan); flex-shrink: 0;
+}
+.detail-title-area { flex: 1; }
+.detail-name { font-family: var(--font-body); font-size: 20px; font-weight: 700; color: var(--text-primary); }
+.detail-rarity { margin-top: 4px; }
+
+.detail-body {
+  background: rgba(6,6,14,0.4); border: 1px solid var(--border-subtle);
+  border-radius: 8px; padding: 16px; font-size: 14px; line-height: 1.6;
+  color: var(--text-secondary);
+}
+.detail-roast {
+  background: rgba(168,85,247,0.08); border-left: 3px solid var(--purple);
+  padding: 12px; border-radius: 0 6px 6px 0;
+  font-family: var(--font-mono); font-size: 12px; color: var(--purple-glow);
+}
+.detail-footer {
+  margin-top: auto; display: flex; align-items: center; justify-content: space-between;
+  padding-top: 16px; border-top: 1px solid var(--border-subtle);
+}
+.detail-price-wrap { display: flex; flex-direction: column; }
+.detail-price-label { font-size: 11px; color: var(--text-tertiary); }
+.detail-price-val { font-family: var(--font-display); font-size: 20px; color: var(--gold); font-weight: 700; }
+
+.detail-buy-btn {
+  padding: 10px 32px; background: var(--cyan); border: none; border-radius: 6px;
+  color: var(--bg-abyss); font-weight: 700; font-size: 14px; cursor: pointer;
+  transition: all 0.25s;
+}
+.detail-buy-btn:hover { background: var(--cyan-glow); box-shadow: 0 0 15px var(--cyan); }
+
+@media (max-width: 768px) {
+  .shop-grid { grid-template-columns: repeat(3, 1fr); }
+  .roast-bubble { width: 100px; font-size: 9px; }
+}
+
+.shop-tab-content { display: none; }
+.shop-tab-content.active { display: grid; }
+
+/* ============================================================
+   SOCIAL LIST (Favorability Tracker) - Slider Version
+   ============================================================ */
+.social-nav {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.social-nav-btn {
+  background: transparent;
+  border: 1px solid var(--border-glow);
+  border-radius: 4px;
+  color: var(--cyan);
+  cursor: pointer;
+  padding: 4px 8px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.social-nav-btn:hover {
+  border-color: var(--cyan);
+  box-shadow: 0 0 10px var(--cyan);
+}
+.social-nav-name {
+  font-family: var(--font-body);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--cyan);
+  min-width: 100px;
+  text-align: center;
+  text-shadow: 0 0 10px var(--cyan-glow);
+}
+
+.social-slider-wrap {
+  overflow: hidden;
+  width: 100%;
+  touch-action: pan-y;
+}
+.social-slider-track {
+  display: flex;
+  transition: transform 0.4s var(--ease-out-expo);
+}
+.social-slide {
+  flex: 0 0 100%;
+  box-sizing: border-box;
+  padding: 4px;
+}
+
+.social-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+}
+.social-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--border-glow);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.social-dot.active {
+  background: var(--cyan);
+  box-shadow: 0 0 8px var(--cyan);
+  transform: scale(1.2);
+}
+
+.social-card {
+  background: linear-gradient(135deg, rgba(6,6,14,0.85) 0%, rgba(12,12,30,0.8) 100%);
+  border: 1px solid var(--border-subtle); border-radius: 8px;
+  padding: 14px 16px;
+  transition: all 0.25s var(--ease-out-expo);
+  cursor: pointer; position: relative; overflow: hidden;
+}
+.social-card:hover {
+  border-color: var(--border-glow);
+  background: linear-gradient(135deg, rgba(10,10,20,0.95) 0%, rgba(16,16,36,0.9) 100%);
+}
+.social-card-header {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 8px;
+}
+.social-avatar {
+  width: 48px; height: 48px; border-radius: 50%;
+  background: var(--border-glow); display: flex; align-items: center; justify-content: center;
+  color: var(--cyan); font-size: 20px;
+  border: 2px solid var(--cyan);
+  box-shadow: 0 0 10px rgba(0,229,255,0.2);
+}
+.social-name {
+  font-family: var(--font-body); font-size: 18px; font-weight: 700; color: var(--text-primary);
+}
+.social-type {
+  font-size: 12px; color: var(--text-tertiary);
+}
+.social-status {
+  margin-left: auto; font-size: 12px; padding: 3px 10px; border-radius: 12px;
+}
+/* --- Info Dossier (Visible by default) --- */
+.social-detail {
+  padding: 20px 16px; border-top: 1px solid var(--border-subtle);
+  display: flex; flex-direction: column; gap: 16px;
+  background: rgba(0,0,0,0.3);
+}
+.social-card .social-detail {
+  max-height: none; overflow: visible;
+}
+
+.dossier-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+}
+@media (max-width: 768px) {
+  .dossier-grid { grid-template-columns: 1fr; gap: 12px; }
+}
+.dossier-group-title {
+  font-size: 10px; color: var(--cyan); letter-spacing: 0.1em;
+  text-transform: uppercase; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;
+}
+.dossier-group-title::before { content: ''; width: 4px; height: 4px; background: var(--cyan); border-radius: 50%; }
+
+.prop-row {
+  display: flex; justify-content: space-between; padding: 4px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.03); font-size: 12px;
+}
+.prop-label { color: var(--text-tertiary); }
+.prop-val { color: var(--text-secondary); text-align: right; }
+
+.clothes-mini-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 4px 12px;
+}
+
+.physical-status {
+  background: rgba(255,71,87,0.03); border: 1px solid rgba(255,71,87,0.1);
+  border-radius: 6px; padding: 12px; margin-top: 4px;
+}
+.excitement-bar-wrap { margin-top: 8px; }
+.excitement-label { font-size: 10px; color: var(--red); margin-bottom: 4px; display: block; }
+.excitement-bar { height: 4px; background: rgba(255,71,87,0.2); border-radius: 2px; overflow: hidden; }
+.excitement-fill {
+  height: 100%; background: linear-gradient(90deg, var(--red), #ff7675);
+  box-shadow: 0 0 10px var(--red);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse { 0% { opacity: 0.8; } 50% { opacity: 1; } 100% { opacity: 0.8; } }
+
+.thought-box {
+  background: rgba(0,229,255,0.03); border-left: 2px solid var(--cyan);
+  padding: 10px 14px; border-radius: 0 6px 6px 0; margin-top: 8px;
+}
+.thought-text { font-family: var(--font-body); font-size: 13px; color: var(--cyan); font-style: italic; }
+
+.social-progress-wrap {
+  display: flex; align-items: center; gap: 10px;
+}
+.social-favor-text {
+  font-family: var(--font-mono); font-size: 11px; color: var(--cyan); width: 24px; text-align: right;
+}
+.social-progress-bar {
+  flex: 1; height: 4px; background: rgba(30,30,58,0.5); border-radius: 2px; overflow: hidden;
+}
+.social-progress-fill {
+  height: 100%; border-radius: 2px; background: var(--cyan); box-shadow: 0 0 8px var(--cyan);
+}
+.social-level-text {
+  font-size: 10px; color: var(--text-secondary); width: 60px; text-align: right;
+}
+
+.social-roast {
+  margin-top: 16px;
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--purple-glow);
+  padding: 10px 14px;
+  background: rgba(168,85,247,0.05);
+  border-radius: 6px;
+  border-left: 2px solid var(--purple);
+}
+
+.arrow-icon { width: 16px; height: 16px; }
+
+.bag-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 64px);
+  gap: 8px;
+  justify-content: center;
+  padding: 8px 0;
+}
+.bag-cell {
+  width: 64px; height: 64px;
+  background: rgba(6,6,14,0.8);
+  border: 2px solid var(--border-subtle);
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; position: relative;
+  transition: all 0.2s var(--ease-out-expo);
+}
+.bag-cell:hover {
+  border-color: var(--cyan);
+  box-shadow: 0 0 12px rgba(0,229,255,0.2);
+}
+/* Trick: last-row empty cells are invisible */
+.bag-cell.phantom { visibility: hidden; }
+.bag-cell .cell-icon {
+  width: 38px; height: 38px;
+  color: var(--cyan);
+}
+.bag-cell .cell-count {
+  position: absolute;
+  right: 5px; bottom: 3px;
+  font-family: var(--font-mono);
+  font-size: 11px; font-weight: 700;
+  color: #fff;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+}
+
+/* Modal grid layout for items */
+.modal-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+}
+.modal-grid-item {
+  background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 8px;
+  padding: 16px; text-align: center;
+  transition: all 0.25s var(--ease-out-expo);
+  cursor: pointer;
+}
+.modal-grid-item:hover {
+  border-color: var(--cyan);
+  box-shadow: 0 0 16px rgba(0,229,255,0.1);
+  transform: translateY(-2px);
+}
+.modal-grid-item .item-icon { width: 36px; height: 36px; margin: 0 auto 8px; color: var(--cyan); }
+.modal-grid-item .item-name { font-size: 13px; color: var(--text-primary); margin-bottom: 2px; }
+.modal-grid-item .item-meta { font-size: 11px; color: var(--text-tertiary); margin-top: 4px; display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap; }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 768px) {
+  .topbar-group.center { position: static; transform: none; gap: 8px; }
+  .topbar-group.center .topbar-sep { display: none; }
+  .topbar-location { display: none; }
+  .topbar-weather .weather-label { display: none; }
+  .topbar-date { font-size: 11px; }
+  .topbar-time { font-size: 14px; }
+  .topbar-weather { font-size: 12px; }
+  #left-drawer, #right-drawer { width: 260px; }
+  #narrative-scroll { padding: 20px 16px; }
+  #input-bar { padding: 0 10px; gap: 8px; }
+  .narrative-block p { font-size: 15px; line-height: 1.8; }
+  .glow-border-wrap > div[style] { padding: 16px !important; }
+
+  .bag-grid { grid-template-columns: repeat(5, 48px); gap: 5px; }
+  .bag-cell { width: 48px; height: 48px; border-width: 1.5px; }
+  .bag-cell .cell-icon { width: 28px; height: 28px; }
+  .bag-cell .cell-count { font-size: 10px; right: 3px; bottom: 1px; }
+
+  .modal { width: 95%; max-width: 94vw; padding: 14px; max-height: 85vh; }
+  .modal.size-small, .modal.size-medium, .modal.size-large { max-width: 94vw; }
+  .modal-title { font-size: 17px; }
+  .modal-subtitle { font-size: 11px; margin-bottom: 10px; }
+  .modal-close { top: 10px; right: 10px; width: 28px; height: 28px; }
+  .modal-grid { grid-template-columns: repeat(auto-fill, minmax(95px, 1fr)); gap: 6px; }
+  .modal-grid-item { padding: 10px 8px; }
+  .modal-grid-item .item-icon { width: 26px; height: 26px; margin-bottom: 4px; }
+  .modal-grid-item .item-name { font-size: 11px; }
+  .modal-grid-item .item-meta { font-size: 9px; gap: 3px; }
+  .modal .tag { font-size: 9px; padding: 1px 5px; }
+}
+</style>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ====== TOP BAR ====== -->
+  <header id="topbar">
+    <div class="topbar-group">
+      <button class="menu-trigger" id="btn-left" title="角色档案" aria-label="打开角色面板">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+
+    <div class="topbar-group center">
+      <span class="topbar-date">2778·08·31</span>
+      <span class="topbar-time">15:45</span>
+      <span class="topbar-sep"></span>
+      <span class="topbar-location">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+        星城 · 天穹学府
+      </span>
+    </div>
+
+    <div class="topbar-group">
+      <span class="topbar-weather">
+        <!-- Sun icon -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="1.6">
+          <circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+        </svg>
+        <span class="weather-label">晴朗</span>
+        <span class="temp">32°C</span>
+      </span>
+      <button class="menu-trigger" id="btn-right" title="系统菜单" aria-label="打开系统菜单">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ====== MAIN CONTENT ====== -->
+  <main id="main-area" class="scan-overlay">
+    <div id="narrative-scroll">
+      <div class="narrative-block">
+        <div class="glow-border-wrap" style="flex:1; display:flex; flex-direction:column; min-height:0; margin-bottom:10px;">
+          <div id="main-narrative-content" style="flex:1; overflow-y:auto; position:relative; z-index:1; background:rgba(6,6,14,0.85); border-radius:10px; padding:24px 28px; backdrop-filter:blur(8px);">
+            <p>2778年8月31日，星期天，下午3点45分。</p>
+            <p>天气晴朗，星城的八月末依然炎热。磁悬浮列车的空调冷气开得很足，你靠在窗边，看着窗外飞速后退的城市景象。天穹学府的轮廓已经出现在了地平线上，那片庞大的建筑群像一座匍匐的巨兽，静静地卧在城市边缘。</p>
+            <p>你手腕上的个人终端震动了一下，一条新的通讯请求弹了出来。发件人是<span class="npc-name">敖锐</span>。</p>
+            <p>你接通了通讯。</p>
+            <p><span class="npc-name">"到哪了？"</span>对方的声音通过终端传来，简短，没有多余的话。</p>
+            <p>"刚下车，南站台。"</p>
+            <p><span class="npc-name">"接驳车直接坐到别墅区G栋，我们在。"</span></p>
+            <p>"行。"</p>
+            <p>通讯挂断。你站在站台上，看着人来人往。高大的牛兽人穿着工装背心，扛着行李箱从你身边走过；长着翅膀的鸟亚兽人三三两两地聚在站台边缘，讨论着开学后的课程；更多的是和你一样的人类新生，脸上带着好奇和兴奋。</p>
+            <div class="sys-msg">▸ 零七：大家族的人就是不一样，直接住别墅区。你呢，要不是你那几个发小邀请，就得去挤公寓楼。</div>
+            <p>"他们本来就说了让我住一起。"你在心里回了一句。</p>
+            <div class="sys-msg">▸ 零七：是是是，从小玩到大的兄弟嘛。不过话说回来，你玄阴体，他们七个炎阳体，你爸妈和他们爸妈什么心思你真不知道？从小撮合到大了都。</div>
+            <p>"那是家里人的事。"</p>
+            <div class="sys-msg">▸ 零七：得了吧，你自己什么审美你心里没数？强壮兽人帅哥，七个，还全是你从小看到大的。你这叫近水楼台。</div>
+            <p>你没有再理会零七，走向校内接驳车的站点。接驳车是无人驾驶的悬浮车，你坐进去，在目的地一栏输入了"别墅区G栋"。车门关闭，无声地启动，向着学府内层驶去。</p>
+            <p>车窗外的景象和外层完全不同。没有了商业街的喧嚣，取而代之的是大片的草坪、宁静的湖泊和错落有致的教学楼。每一栋建筑的设计都充满了未来感，但又和周围的自然环境融合在一起。偶尔能看到几个学生从路边走过，他们身上散发出的能量波动远比外层的普通人要强。</p>
+            <div class="sys-msg">▸ 零七：这地方能量浓度比外面高了至少三成。对你修炼有好处。</div>
+            <p>接驳车在一片风格各异的别墅区前停下。你下了车，抬头看向面前的"G"字路牌。这里的每一栋别墅都造型独特，有的像古典的庄园，有的像科幻的堡垒。G栋是一栋现代风格的主三层建筑，黑白灰的主色调，线条简洁利落，巨大的落地窗反射着午后的阳光。</p>
+            <p>你走到门口，看到一个身材高大的身影正靠在门边。黑色T恤，工装裤，金棕色的短毛，深棕色的鬃毛在阳光下显得浓密。<span class="npc-name">石磊</span>看到你，站直了身体，抬了抬下巴。</p>
+            <p><span class="npc-name">"来了。"</span></p>
+            <p>"嗯。"你把背包带往肩上提了提。</p>
+            <p>他琥珀色的眼睛扫了一眼你的行李，侧身让开门。<span class="npc-name">"就带这么点东西？进来吧，敖锐在里面。"</span></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="input-bar">
+      <input id="player-input" type="text" placeholder="输入行动或对话…" autocomplete="off">
+      <button id="send-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        <span>发送</span>
+      </button>
+    </div>
+  </main>
+</div>
+
+<!-- ====== OVERLAYS ====== -->
+<div class="drawer-overlay" id="overlay-left"></div>
+<div class="drawer-overlay" id="overlay-right"></div>
+
+<!-- ====== LEFT DRAWER — Character ====== -->
+<aside id="left-drawer" class="scan-overlay">
+  <div class="drawer-section-title">角色档案</div>
+
+  <div class="avatar-wrapper">
+    <div class="avatar-ring">
+      <div class="avatar-img">
+        <span class="avatar-placeholder">谢</span>
+      </div>
+    </div>
+    <span class="avatar-name">谢自国</span>
+    <span class="race-badge">人类 · 玄阴体</span>
+  </div>
+
+  <div class="glow-border-wrap" style="border-radius:8px;">
+    <div style="position:relative;z-index:1;border-radius:6px;overflow:hidden;">
+      <div class="career-card" style="margin:0;border:none;border-radius:6px;">
+    <div class="career-label">职业派系</div>
+    <div class="career-name">生命系 · 灵医</div>
+    <div class="career-tier">✦ 天赋评级 S · 感应·下位</div>
+    </div>
+    </div>
+  </div>
+
+  <!-- Basic info grid -->
+  <div class="info-grid">
+    <div class="info-pill"><span class="info-pill-key">国籍</span><span class="info-pill-val">华夏联邦</span></div>
+    <div class="info-pill"><span class="info-pill-key">年龄</span><span class="info-pill-val">18岁</span></div>
+    <div class="info-pill"><span class="info-pill-key">身高</span><span class="info-pill-val">170cm</span></div>
+    <div class="info-pill"><span class="info-pill-key">身份</span><span class="info-pill-val">谢氏三子 · 大一新生</span></div>
+  </div>
+
+  <!-- Appearance -->
+  <div class="info-section">
+    <div class="info-section-label">外貌特征</div>
+    <div class="info-detail">白色短碎发（家族遗传） · 异瞳（左星空蓝 / 右樱花粉）</div>
+    <div class="info-detail">微胖体型 · 腹有小肚腩 · 五官端正</div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-block">
+    <div class="stat-row">
+      <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="#FF4757" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      <span class="stat-label">力量</span>
+      <div class="stat-bar-track"><div class="stat-bar-fill str" style="width:38%"></div></div>
+      <span class="stat-val">38</span>
+    </div>
+    <div class="stat-row">
+      <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="#00E5FF" stroke-width="2"><polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      <span class="stat-label">敏捷</span>
+      <div class="stat-bar-track"><div class="stat-bar-fill agi" style="width:45%"></div></div>
+      <span class="stat-val">45</span>
+    </div>
+    <div class="stat-row">
+      <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="#A855F7" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+      <span class="stat-label">智力</span>
+      <div class="stat-bar-track"><div class="stat-bar-fill int" style="width:72%"></div></div>
+      <span class="stat-val">72</span>
+    </div>
+    <div class="stat-row">
+      <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="#E2B04A" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      <span class="stat-label">耐力</span>
+      <div class="stat-bar-track"><div class="stat-bar-fill end" style="width:40%"></div></div>
+      <span class="stat-val">40</span>
+    </div>
+  </div>
+
+  <!-- Personal gifts -->
+  <div class="info-section">
+    <div class="info-section-label">个人天赋</div>
+    <div class="info-detail">厨艺高超 — 自小自学，水平不输专业厨师</div>
+    <div class="info-detail">医术高超 — 从母亲处习得，生命系能量理解远超同龄人</div>
+  </div>
+
+  <!-- Preferences -->
+  <div class="info-section">
+    <div class="info-section-label">饮食偏好</div>
+    <div class="info-detail">海鲜 · 面食 · 垃圾食品</div>
+    <div class="info-detail">口味：甜 · 微辣 · 咸</div>
+  </div>
+
+  <!-- Currency -->
+  <div class="currency-row">
+    <div class="currency-item">
+      <div class="currency-val">50,000</div>
+      <div class="currency-label">信用点</div>
+    </div>
+    <div class="currency-item">
+      <div class="currency-val">0</div>
+      <div class="currency-label">功勋</div>
+    </div>
+  </div>
+</aside>
+
+<!-- ====== RIGHT DRAWER — System Menu ====== -->
+<aside id="right-drawer" class="scan-overlay">
+  <div class="menu-header">系统菜单</div>
+
+  <div class="menu-item" data-action="backpack">
+    <svg class="menu-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="3" width="14" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
+    背包
+    <span class="menu-item-badge">12</span>
+  </div>
+
+  <div class="menu-item" data-action="quests">
+    <svg class="menu-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="2" width="6" height="4" rx="1"/><polyline points="9 14 11 16 15 12"/></svg>
+    任务
+    <span class="menu-item-badge">3</span>
+  </div>
+
+  <div class="menu-item" data-action="social">
+    <svg class="menu-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="7" r="4"/><path d="M1 21v-2a4 4 0 014-4h8a4 4 0 014 4v2"/><circle cx="17" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/></svg>
+    交际
+  </div>
+
+  <div class="menu-divider"></div>
+
+  <div class="menu-item" data-action="shop">
+    <svg class="menu-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="2" width="20" height="20" rx="2"/><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
+    商店系统
+  </div>
+
+  <div class="menu-item" data-action="checkin">
+    <svg class="menu-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><polyline points="12 14 12 18"/><polyline points="9 17 12 14 15 17"/></svg>
+    签到
+  </div>
+
+  <div class="menu-divider"></div>
+
+  <div class="menu-item fullscreen-item" data-action="fullscreen">
+    <svg class="menu-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><polyline points="21 3 14 10"/><polyline points="3 21 10 14"/></svg>
+    全屏模式
+  </div>
+</aside>
+
+<!-- ====== TOAST CONTAINER ====== -->
+<div id="toast-container"></div>
+
+<!-- ====== MODAL CONTAINER ====== -->
+<div id="modal-root"></div>
+
+<script type="module">
+/* ============================================================
+   CORE TAVERNLIKE ENGINE
+   ============================================================ */
+
+/**
+ * StreamParser: Extract XML tags from LLM stream
+ */
+class StreamParser {
+  constructor(onUpdate) {
+    this.buffer = '';
+    this.onUpdate = onUpdate; // Callback for incremental text
+    this.tags = {
+      thinking: '',
+      maintext: '',
+      option: '',
+      sum: '',
+      vars: ''
+    };
+  }
+
+  parse(chunk) {
+    this.buffer += chunk;
+    const tagRegex = /<(\w+)>([\s\S]*?)(?:<\/\1>|$)/g;
+    let match;
+    const currentTags = { ...this.tags };
+
+    while ((match = tagRegex.exec(this.buffer)) !== null) {
+      const tagName = match[1];
+      let content = match[2];
+
+      // If we found a full closing tag, update the tag content
+      if (match[0].endsWith(`</${tagName}>`)) {
+        if (this.tags.hasOwnProperty(tagName)) {
+          this.tags[tagName] = content.trim();
+        }
+      }
+    }
+
+    // Check if maintext updated, but filter out partial closing tags from streaming output
+    const maintextMatch = /<maintext>([\s\S]*?)(?:<\/maintext>|$)/.exec(this.buffer);
+    if (maintextMatch) {
+      let currentMaintext = maintextMatch[1];
+
+      // CRITICAL FIX: If the end of current text looks like a partial closing tag,
+      // wait until it's complete or confirmed as plain text
+      const partialTagMatch = currentMaintext.match(/<\/?\w*$/);
+      if (partialTagMatch && !this.buffer.includes('</maintext>')) {
+        currentMaintext = currentMaintext.slice(0, partialTagMatch.index);
+      }
+
+      const newChars = currentMaintext.slice(this.tags.maintext.length);
+      if (newChars) {
+        this.onUpdate(newChars, 'maintext');
+        this.tags.maintext += newChars;
+      }
+    }
+  }
+
+  reset() {
+    this.buffer = '';
+    Object.keys(this.tags).forEach(k => this.tags[k] = '');
+  }
+}
+
+/**
+ * GameState: Manages stat_data and variable merging
+ */
+window.GameState = {
+  data: {
+    stat_data: {
+      "谢自国": {
+        "金钱": 50000,
+        "体温": 36.2,
+        "背包": {
+          "录取通知": { "数量": 1, "描述": "天穹学府的入学通知书，采用量子加密。", "图标": "scroll", "品质": "R" },
+          "个人终端": { "数量": 1, "描述": "谢氏家族标配的最新款终端。", "图标": "chip", "品质": "SR" },
+          "修复剂": { "数量": 2, "描述": "基础的万用修复喷雾。", "图标": "potion", "品质": "N" },
+          "G栋门禁": { "数量": 1, "描述": "别墅区 G 栋的最高权限卡。", "图标": "key", "品质": "SR" },
+          "谢氏徽章": { "数量": 1, "描述": "谢氏家族三子的身份证明。", "图标": "sword", "品质": "SSR" },
+          "入学手册": { "数量": 1, "描述": "厚厚的一本电子书，记载了天穹学府校规。", "图标": "book", "品质": "N" }
+        }
+      },
+      "零七系统": {
+        "积分": 500,
+        "日期": "2778.08.31",
+        "时间": "15:45",
+        "签到": {
+          "今日已签到": false,
+          "连续天数": 0,
+          "历史记录": [] // 存储已签到的日期数字
+        },
+        "任务列表": {
+          "新生报到": { "类型": "主线", "状态": "进行中", "描述": "前往行政楼完成入学注册", "地点": "天穹学府 · 行政楼", "积分奖励": 50 },
+          "天穹学府探索": { "类型": "支线", "状态": "新", "描述": "熟悉学府各区域", "地点": "天穹学府全域", "积分奖励": 30 },
+          "七人团的邀约": { "类型": "社交", "状态": "待定", "描述": "是否接受他们的合住邀请？", "地点": "别墅区G栋", "积分奖励": 100 },
+          "能量感知训练": { "类型": "日常", "状态": "新", "描述": "完成首次感知冥想", "地点": "别墅区 · 冥想室", "积分奖励": 20 }
+        },
+        "已完成任务列表": {
+          "家族告别": { "类型": "主线", "描述": "与父母及兄长们告别", "完成时间": "2778.08.30", "获得积分": 150 }
+        }
+      },
+      "攻略目标": {
+        "敖锐": {
+          "好感度": 1350, "好感度等级": "亲密", "兴奋值": 15, "阴茎状态": "自然下垂", "心情": "平静", "当前位置": "G栋·一层客厅", "心里想法": "自国到了，房间已经收拾好了",
+          "基础信息": { "年龄": "19岁", "身份": "敖氏次子·学府学生会副会长", "种族": "龙科兽人" },
+          "职业信息": { "职业名称": "龙将", "派系": "强袭+统帅", "天赋": "SSS", "境界": "聚能·上位" },
+          "衣物状态": { "衣服": "黑色圆领短袖T恤", "裤子": "黑色直筒长裤", "内裤": "黑色平角内裤", "鞋子": "黑色皮质休闲鞋", "配饰1": "黑色金属手表" }
+        },
+        "石磊": {
+          "好感度": 1400, "好感度等级": "亲密", "兴奋值": 10, "阴茎状态": "自然下垂", "心情": "温和", "当前位置": "G栋·门口", "心里想法": "这小子就带这么点行李，回头看缺什么再补",
+          "基础信息": { "年龄": "19岁", "身份": "石氏次子·天穹学府大二", "种族": "猫科兽人" },
+          "职业信息": { "职业名称": "狮铠", "派系": "强袭+守护", "天赋": "SSS", "境界": "聚能·上位" },
+          "衣物状态": { "衣服": "白色圆领短袖T恤", "裤子": "黑色直筒长裤", "内裤": "黑色平角内裤", "鞋子": "黑色休闲皮鞋", "配饰1": "黑色金属手表" }
+        },
+        "苍岚": {
+          "好感度": 1300, "好感度等级": "亲密", "兴奋值": 20, "阴茎状态": "自然下垂", "心情": "开心", "当前位置": "G栋·一层客厅", "心里想法": "自国终于搬过来了，以后天天能见着",
+          "基础信息": { "年龄": "19岁", "身份": "苍氏三子·天穹学府大二", "种族": "犬科兽人" },
+          "职业信息": { "职业名称": "影狼", "派系": "强袭+幽影", "天赋": "SSS", "境界": "聚能·上位" },
+          "衣物状态": { "衣服": "白色圆领短袖T恤", "裤子": "黑色运动长裤", "内裤": "天蓝色平角内裤", "鞋子": "白色运动鞋", "配饰1": "黑色运动手表" }
+        },
+        "雷啸": {
+          "好感度": 1250, "好感度等级": "亲密", "兴奋值": 35, "阴茎状态": "轻微勃起", "心情": "随意", "当前位置": "G栋·一层客厅", "心里想法": "自国来了正好，等会儿拉他看我训练",
+          "基础信息": { "年龄": "19岁", "身份": "雷氏次子·天穹学府大二", "种族": "猫科兽人" },
+          "职业信息": { "职业名称": "雷虎", "派系": "强袭+能量", "天赋": "SSS", "境界": "聚能·上位" },
+          "衣物状态": { "衣服": "黑色运动背心", "裤子": "黑色运动短裤", "内裤": "黑色平角内裤", "鞋子": "没穿", "配饰1": "黑色运动手环" }
+        },
+        "敖昂": {
+          "好感度": 1200, "好感度等级": "亲密", "兴奋值": 10, "阴茎状态": "自然下垂", "心情": "平常", "当前位置": "G栋·一层客厅", "心里想法": "自国总算来了，以后住一起方便",
+          "基础信息": { "年龄": "19岁", "身份": "敖氏三子·天穹学府大二", "种族": "龙科兽人" },
+          "职业信息": { "职业名称": "影龙", "派系": "强袭+幽影", "天赋": "SSS", "境界": "聚能·上位" },
+          "衣物状态": { "衣服": "深灰色连帽卫衣", "裤子": "黑色工装裤", "内裤": "黑色平角内裤", "鞋子": "黑色高帮运动鞋", "配饰1": "左耳银色耳钉" }
+        },
+        "白祈": {
+          "好感度": 1200, "好感度等级": "亲密", "兴奋值": 5, "阴茎状态": "自然下垂", "心情": "困", "当前位置": "G栋·客厅沙发", "心里想法": "自国来了就好，困，等他进来再说",
+          "基础信息": { "年龄": "19岁", "身份": "白氏三子·天穹学府大二", "种族": "猫科兽人" },
+          "职业信息": { "职业名称": "魇豹", "派系": "强袭+诡异", "天赋": "SSS", "境界": "聚能·上位" },
+          "衣物状态": { "衣服": "浅灰色连帽卫衣", "裤子": "黑色束脚运动裤", "内裤": "黑色平角内裤", "鞋子": "没穿", "配饰1": "无" }
+        },
+        "闻骁": {
+          "好感度": 1150, "好感度等级": "亲密", "兴奋值": 12, "阴茎状态": "自然下垂", "心情": "普通", "当前位置": "G栋·一层客厅", "心里想法": "手里零件还差两个就装完了，等会儿再打招呼",
+          "基础信息": { "年龄": "19岁", "身份": "闻氏四子·天穹学府大二", "种族": "犬科兽人" },
+          "职业信息": { "职业名称": "战械师", "派系": "强袭+技术", "天赋": "SSS", "境界": "聚能·上位" },
+          "衣物状态": { "衣服": "黑色圆领短袖T恤", "裤子": "黑色工装裤", "内裤": "深灰色平角内裤", "鞋子": "黑色工装靴", "配饰1": "黑色电子手表" }
+        }
+      }
+    }
+  },
+
+  init(initialData) {
+    if (initialData) this.data = initialData;
+    this.refreshUI();
+  },
+
+  mergeVars(jsonStr) {
+    try {
+      const newVars = JSON.parse(jsonStr);
+      this.deepMerge(this.data.stat_data, newVars);
+      this.refreshUI();
+      showToast('系统数据已同步', 'success');
+    } catch (e) {
+      console.error('Failed to merge vars:', e);
+    }
+  },
+
+  deepMerge(target, source) {
+    for (const key in source) {
+      if (source[key] instanceof Object && key in target) {
+        Object.assign(source[key], this.deepMerge(target[key], source[key]));
+      }
+    }
+    Object.assign(target || {}, source);
+    return target;
+  },
+
+  matchLore(text) {
+    if (!this.lorebook) return;
+    const entries = Object.values(this.lorebook.entries || {});
+    const matches = entries.filter(e => {
+      if (e.disable) return false;
+      return e.key.some(k => text.includes(k));
+    });
+
+    if (matches.length > 0) {
+      matches.forEach(m => {
+        showToast(`发现设定：${m.comment || m.key[0]}`, 'info');
+      });
+    }
+  },
+
+  async loadLorebook() {
+    try {
+      // In a real browser environment, we might fetch this.
+      // For now, we'll try to find it in the global context if provided by the host.
+      if (window.LorebookData) {
+        this.lorebook = window.LorebookData;
+      }
+    } catch (e) {
+      console.warn('Lorebook load failed', e);
+    }
+  },
+
+  refreshUI() {
+    UIController.updateCharacterPanel(this.data.stat_data["谢自国"]);
+    UIController.updateSystemStats(this.data.stat_data["零七系统"]);
+    // Trigger global variable update event for legacy compatibility
+    window.dispatchEvent(new CustomEvent('VARIABLE_UPDATE_ENDED'));
+  }
+};
+
+/**
+ * ItemEffects: Defines logic for using/opening specific items
+ */
+window.ItemEffects = {
+  "签到大礼包": function() {
+    const sys = window.GameState.data.stat_data["零七系统"];
+    const user = window.GameState.data.stat_data["谢自国"];
+
+    // 1. 随机奖励逻辑
+    const bonusPoints = Math.floor(Math.random() * 200) + 100; // 100-300积分
+    const rewards = ["感知强化露", "基础能量丸", "万能调味粉"];
+    const randomReward = rewards[Math.floor(Math.random() * rewards.length)];
+
+    // 2. 执行奖励
+    sys.积分 = (sys.积分 || 0) + bonusPoints;
+
+    // 将随机抽到的物品放入背包
+    const poolItem = modalConfig.shop.masterPool.find(i => i.name === randomReward);
+    if (poolItem) {
+      if (user.背包[randomReward]) {
+        user.背包[randomReward].数量 += 1;
+      } else {
+        user.背包[randomReward] = {
+          数量: 1,
+          描述: poolItem.desc,
+          图标: poolItem.icon,
+          品质: poolItem.rarity
+        };
+      }
+    }
+
+    // 3. 反馈
+    showToast(`礼包开启成功！获得：${bonusPoints}积分、${randomReward} x1`, 'success');
+    return true; // 返回 true 表示物品已消耗
+  },
+
+  "修复剂": function() {
+    showToast('【正在修复衣物纤维... 你的工装看起来像新的一样了】', 'success');
+    return true;
+  },
+
+  "基础能量丸": function() {
+    showToast('【一股暖流涌遍全身，能量恢复了 15%】', 'success');
+    return true;
+  }
+};
+
+/**
+ * UIController: Handles DOM manipulations for the game
+ */
+window.UIController = {
+  narrativeScroll: document.getElementById('narrative-scroll'),
+  lastPara: null,
+
+  appendNarrative(text, type = 'maintext') {
+    if (!text) return;
+    const container = document.getElementById('main-narrative-content');
+
+    if (type === 'player') {
+      const p = document.createElement('p');
+      p.style.cssText = 'color:var(--cyan); opacity:0.8; margin-top:20px; font-family:var(--font-mono); border-top:1px solid rgba(0,229,255,0.1); padding-top:10px;';
+      p.textContent = `> ${text}`;
+      container.appendChild(p);
+      this.lastPara = null;
+      container.scrollTop = container.scrollHeight;
+      return;
+    }
+
+    if (!this.lastPara || type === 'system') {
+      const p = document.createElement('p');
+      if (type === 'system') p.className = 'sys-msg';
+      container.appendChild(p);
+      this.lastPara = p;
+    }
+
+    this.lastPara.textContent += text;
+    container.scrollTop = container.scrollHeight;
+  },
+
+  updateCharacterPanel(user) {
+    if (!user) return;
+
+    // Update Currency
+    const currencyVal = document.querySelectorAll('.currency-val');
+    if (currencyVal.length >= 1) currencyVal[0].textContent = (user["金钱"] || 0).toLocaleString();
+    if (currencyVal.length >= 2) currencyVal[1].textContent = (user["功勋"] || 0).toLocaleString();
+
+    // Update Basic Info Pills
+    const pills = document.querySelectorAll('.info-pill-val');
+    if (pills.length >= 4) {
+      pills[0].textContent = user["国籍"] || '华夏联邦';
+      pills[1].textContent = user["年龄"] || '18岁';
+      pills[2].textContent = user["身高"] || '170cm';
+      pills[3].textContent = user["身份"] || '谢氏三子';
+    }
+
+    // Update Race Badge
+    const raceBadge = document.querySelector('.race-badge');
+    if (raceBadge) raceBadge.textContent = user["种族"] || '人类 · 玄阴体';
+
+    // Update Stats
+    const statVals = document.querySelectorAll('.stat-val');
+    const fillBars = document.querySelectorAll('.stat-bar-fill');
+    if (user.stats) {
+      const s = user.stats;
+      const mapping = ['str', 'agi', 'int', 'end'];
+      const keys = ['力量', '敏捷', '智力', '耐力'];
+
+      keys.forEach((key, i) => {
+        if (statVals[i]) statVals[i].textContent = s[key] || statVals[i].textContent;
+        if (fillBars[i]) fillBars[i].style.width = (s[key] || 40) + '%';
+      });
+    }
+  },
+
+  updateSystemStats(sys) {
+    if (!sys) return;
+    const timeEl = document.querySelector('.topbar-time');
+    if (timeEl && sys["时间"]) timeEl.textContent = sys["时间"];
+
+    const dateEl = document.querySelector('.topbar-date');
+    if (dateEl && sys["日期"]) dateEl.textContent = sys["日期"].replace(/\./g, '·');
+
+    // Update system points in topbar or other areas if needed
+    const menuBadge = document.querySelector('.menu-item[data-action="shop"] .menu-item-badge');
+    if (menuBadge && sys["积分"]) menuBadge.textContent = sys["积分"];
+  },
+
+  renderOptions(optionsText) {
+    let container = document.getElementById('dynamic-options');
+    if (!container) {
+      container = document.createElement('div');
+      container.id = 'dynamic-options';
+      container.style = 'display:flex; gap:8px; padding:10px 20px; overflow-x:auto; background:rgba(0,0,0,0.3); border-top:1px solid var(--border-subtle);';
+      document.getElementById('main-area').insertBefore(container, document.getElementById('input-bar'));
+    }
+
+    container.innerHTML = '';
+    const options = optionsText.split('\n').filter(o => o.trim());
+    options.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = 'race-badge'; // Reuse existing styling
+      btn.style.cursor = 'pointer';
+      btn.textContent = opt.replace(/^\d+\.\s*/, '');
+      btn.onclick = () => {
+        document.getElementById('player-input').value = btn.textContent;
+        document.getElementById('send-btn').click();
+      };
+      container.appendChild(btn);
+    });
+  }
+};
+
+/* ============================================================
+   DRAWER MANAGER
+   ============================================================ */
+const btnLeft     = document.getElementById('btn-left');
+const btnRight    = document.getElementById('btn-right');
+const drawerLeft  = document.getElementById('left-drawer');
+const drawerRight = document.getElementById('right-drawer');
+const overlayLeft  = document.getElementById('overlay-left');
+const overlayRight = document.getElementById('overlay-right');
+
+function openDrawer(drawer, overlay, btn) {
+  drawer.classList.add('open');
+  overlay.classList.add('active');
+  btn.classList.add('active');
+}
+function closeDrawer(drawer, overlay, btn) {
+  drawer.classList.remove('open');
+  overlay.classList.remove('active');
+  btn.classList.remove('active');
+}
+function closeAllDrawers() {
+  closeDrawer(drawerLeft, overlayLeft, btnLeft);
+  closeDrawer(drawerRight, overlayRight, btnRight);
+}
+
+btnLeft.addEventListener('click', () => {
+  if (drawerLeft.classList.contains('open')) {
+    closeDrawer(drawerLeft, overlayLeft, btnLeft);
+  } else {
+    closeDrawer(drawerRight, overlayRight, btnRight);
+    openDrawer(drawerLeft, overlayLeft, btnLeft);
+  }
+});
+btnRight.addEventListener('click', () => {
+  if (drawerRight.classList.contains('open')) {
+    closeDrawer(drawerRight, overlayRight, btnRight);
+  } else {
+    closeDrawer(drawerLeft, overlayLeft, btnLeft);
+    openDrawer(drawerRight, overlayRight, btnRight);
+  }
+});
+overlayLeft.addEventListener('click',  () => closeDrawer(drawerLeft, overlayLeft, btnLeft));
+overlayRight.addEventListener('click', () => closeDrawer(drawerRight, overlayRight, btnRight));
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAllDrawers(); });
+
+/* ============================================================
+   MENU ACTIONS
+   ============================================================ */
+document.querySelectorAll('#right-drawer .menu-item[data-action]').forEach(item => {
+  item.addEventListener('click', () => {
+    const action = item.dataset.action;
+    const label = item.textContent.trim().replace(/\d+$/, '');
+
+    if (action === 'fullscreen') {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+        showToast('已进入全屏模式', 'success');
+      } else {
+        document.exitFullscreen();
+        showToast('已退出全屏模式', 'info');
+      }
+      closeDrawer(drawerRight, overlayRight, btnRight);
+      return;
+    }
+
+    // Open modal with placeholder content
+    openModal(action, label);
+    closeDrawer(drawerRight, overlayRight, btnRight);
+  });
+});
+
+/* ============================================================
+   TOAST SYSTEM
+   ============================================================ */
+function showToast(msg, type = 'info') {
+  const container = document.getElementById('toast-container');
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+
+  const icons = {
+    info:    '<svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>',
+    success: '<svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
+    warning: '<svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+    error:   '<svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>',
+  };
+  toast.innerHTML = (icons[type] || icons.info) + `<span>${msg}</span>`;
+  container.appendChild(toast);
+  toast.addEventListener('animationend', (e) => {
+    if (e.animationName === 'toastSlideOut') toast.remove();
+  });
+}
+
+/* ============================================================
+   MODAL SYSTEM
+   ============================================================ */
+const modalConfig = {
+  backpack: {
+    title: '背包',
+    subtitle: '5列无限行 · 点击物品查看详情',
+    bag: true,
+    get items() {
+      const bag = window.GameState.data.stat_data["谢自国"].背包 || {};
+      return Object.entries(bag).map(([name, data]) => ({
+        id: name,
+        name: name,
+        count: data.数量 || 1,
+        desc: data.描述,
+        icon: data.图标 || 'chip',
+        rarity: data.品质 || 'N'
+      }));
+    }
+  },
+  quests: {
+    title: '任务日志',
+    subtitle: '当前进行中的委托',
+    quest: true,
+    get items() {
+      const tasks = window.GameState.data.stat_data["零七系统"].任务列表 || {};
+      return Object.entries(tasks).map(([name, t]) => ({
+        id: name,
+        name: name,
+        type: t.类型 || '日常',
+        status: t.状态 || '进行中',
+        desc: t.描述 || '',
+        location: t.地点 || '未知',
+        reward: t.积分奖励 ? `${t.积分奖励} 积分` : '未知'
+      }));
+    },
+    get completed() {
+      const done = window.GameState.data.stat_data["零七系统"].已完成任务列表 || {};
+      return Object.entries(done).map(([name, t]) => ({
+        id: name,
+        name: name,
+        type: t.类型 || '日常',
+        status: '已完成',
+        desc: t.描述 || '',
+        location: t.完成时间 || '已完成',
+        reward: t.获得积分 ? `${t.获得积分} 积分` : ''
+      }));
+    }
+  },
+  social: {
+    title: '攻略名单',
+    subtitle: '机密档案 · 核心角色羁绊',
+    social: true,
+    get items() {
+      const targets = window.GameState.data.stat_data["攻略目标"] || {};
+      return Object.entries(targets).map(([name, c]) => ({
+        id: name,
+        name: name,
+        species: c.基础信息?.种族 || '未知',
+        favor: c.好感度 || 0,
+        status: c.好感度等级 || '陌生',
+        level: c.好感度等级 || '陌生',
+        excitement: c.兴奋值 || 0,
+        penis: c.阴茎状态 || '未知',
+        basic: {
+          age: c.基础信息?.年龄 || '未知',
+          identity: c.基础信息?.身份 || '未知'
+        },
+        job: {
+          name: c.职业信息?.职业名称 || '未知',
+          faction: c.职业信息?.派系 || '未知',
+          talent: c.职业信息?.天赋 || 'N/A',
+          rank: c.职业信息?.境界 || '未知'
+        },
+        current: {
+          mood: c.心情 || '未知',
+          location: c.当前位置 || '未知',
+          thought: c.心里想法 || '...'
+        },
+        clothes: {
+          top: c.衣物状态?.衣服 || '未知',
+          bottom: c.衣物状态?.裤子 || '未知',
+          inner: c.衣物状态?.内裤 || '未知',
+          shoes: c.衣物状态?.鞋子 || '未知',
+          acc: c.衣物状态?.配饰1 || '无'
+        },
+        roast: (function() {
+          const roasts = {
+            "敖锐": "【零七：龙少爷表面高冷，心里可能已经把你二楼的房间布置成新房了。】",
+            "石磊": "【零七：这狮子在大门口吹冷风就为了等你，我是该说他深情还是说他憨？】",
+            "苍岚": "【零七：狼盯着猎物的时候也是这么笑的，你猜你是他的谁？】",
+            "雷啸": "【零七：这老虎满脑子都是‘训练’，但他看你的眼神可不像是想教你打拳。】",
+            "敖昂": "【零七：影龙最擅长在暗处观察，你确定昨晚睡觉没感觉到视线吗？】",
+            "白祈": "【零七：睡美人豹子？你要是不趁他睡着亲一口，简直对不起这张脸。】",
+            "闻骁": "【零七：在他眼里，零件比你重要...除非你把自己变成他拆不开的精密锁。】"
+          };
+          return roasts[name] || `【零七：${name}对你的好感度是 ${c.好感度 || 0}，小心别玩砸了。】`;
+        })()
+      }));
+    }
+  },
+  shop: {
+    title: '零七商店',
+    subtitle: '消耗系统积分兑换道具',
+    shop: true,
+    get balance() { return window.GameState.data.stat_data["零七系统"].积分 || 0; },
+    set balance(val) { window.GameState.data.stat_data["零七系统"].积分 = val; },
+    refreshPrice: 20,
+    pageSize: 20,
+    currentItems: [],
+    masterPool: JSON.parse(localStorage.getItem('SHOP_MASTER_POOL')) || [
+      // 修炼类 (20个)
+      { id: 'p1', icon: 'potion', name: '基础能量丸', price: 50, rarity: 'N', type: 'cultivate', desc: '服用后瞬间恢复 15% 能量，由于药效温和，每天可多次服用。', roast: '【零七：这种地摊货也就你当个宝。】' },
+      { id: 'p2', icon: 'zap',    name: '感知强化露', price: 80, rarity: 'R', type: 'cultivate', desc: '滴入眼部后，30分钟内大幅提升对周围 50 米内能量波动的感知力。', roast: '【零七：别用这玩意儿看什么不该看的东西。】' },
+      { id: 'p3', icon: 'target', name: '冥想沉香',   price: 60, rarity: 'N', type: 'cultivate', desc: '点燃后散发的异香可辅助进入深度冥想状态，提升修炼效率 10%。', roast: '【零七：安静的仔。】' },
+      { id: 'p4', icon: 'sword',  name: '基础剑谱',   price: 150, rarity: 'R', type: 'cultivate', desc: '记载了一些基础的格斗与运剑技巧，适合初学者打熬根基。', roast: '【零七：还在练这种烂大街的东西？】' },
+      { id: 'p5', icon: 'shield', name: '能量护盾',   price: 200, rarity: 'SR', type: 'cultivate', desc: '一次性道具。被动触发，可在遭遇致命打击时提供一层抵挡伤害的能量薄膜。', roast: '【零七：建议多买几个，你这小身板可经不住打。】' },
+      { id: 'p6', icon: 'zap',    name: '微型雷管',   price: 100, rarity: 'R', type: 'cultivate', desc: '虽然体积小，但威力足以炸开普通的合金门锁，或是给敌人一个惊喜。', roast: '【零七：嘭！真男人从不回头看爆炸。】' },
+      { id: 'p7', icon: 'target', name: '重力环',     price: 250, rarity: 'SR', type: 'cultivate', desc: '穿戴在四肢上，通过增加局部重力来磨炼肉体强度。效果随等级提升。', roast: '【零七：想变强？先学会负重前行吧。】' },
+      { id: 'p8', icon: 'potion', name: '洗髓液',     price: 500, rarity: 'SSR', type: 'cultivate', desc: '极其珍贵的药剂，用于彻底清理体内杂质，永久小幅提升能量上限。', roast: '【零七：这可是我压箱底的宝贝，便宜你了。】' },
+      { id: 'p9', icon: 'sword',  name: '断钢闪',     price: 450, rarity: 'SSR', type: 'cultivate', desc: '高阶剑技，能在瞬间挥出极其锐利的一击，甚至能切断强化合金。', roast: '【零七：帅是真的帅，但你挥得动吗？】' },
+      { id: 'p10', icon: 'shield', name: '反震甲',    price: 300, rarity: 'SR', type: 'cultivate', desc: '不仅能提供物理防护，受攻击时还能反弹 10% 的伤害给攻击者。', roast: '【零七：伤敌一千，自损八百？不，是自损九百。】' },
+      { id: 'p11', icon: 'zap',    name: '疾风步',    price: 180, rarity: 'R', type: 'cultivate', desc: '短时间内爆发极高移速，在战场上化作残影，是逃跑或偷袭的神技。', roast: '【零七：天下武功，唯快不破。】' },
+      { id: 'p12', icon: 'potion', name: '大红药',    price: 120, rarity: 'R', type: 'cultivate', desc: '强效回复药剂，不仅能恢复能量，还能加速伤口愈合。', roast: '【零七：只要没死透，喝一瓶总能抢救回来。】' },
+      { id: 'p13', icon: 'target', name: '凝神咒',    price: 90, rarity: 'N', type: 'cultivate', desc: '一次性符咒，使用后能清除内心的杂念和精神干扰。', roast: '【零七：别想那些色色的事了。】' },
+      { id: 'p14', icon: 'sword',  name: '开山斧',    price: 280, rarity: 'SR', type: 'cultivate', desc: '极其沉重的重型武器，每一击都带有开山裂石般的恐怖力量。', roast: '【零七：你确定你的细胳膊细腿抡得起来？】' },
+      { id: 'p15', icon: 'shield', name: '铁壁',      price: 220, rarity: 'SR', type: 'cultivate', desc: '召唤一道实体化的能量墙，短时间内抵御正前方的一切远程攻击。', roast: '【零七：躲在里面确实挺安全的。】' },
+      { id: 'p16', icon: 'zap',    name: '雷走',      price: 400, rarity: 'SSR', type: 'cultivate', desc: '将雷电能量汇聚于双脚，移动时附带雷鸣之声，并能麻痹周围敌人。', roast: '【零七：闪亮登场，自带音效。】' },
+      { id: 'p17', icon: 'potion', name: '能量方块',  price: 40, rarity: 'N', type: 'cultivate', desc: '浓缩能量块，口感像薄荷糖，是非常方便的基础补给品。', roast: '【零七：嘎嘣脆，鸡肉味？】' },
+      { id: 'p18', icon: 'target', name: '透视眼镜',  price: 150, rarity: 'R', type: 'cultivate', desc: '特殊的电子眼镜，可以看穿三厘米厚的普通墙壁或障碍物。', roast: '【零七：你看哪儿呢？我报警了啊。】' },
+      { id: 'p19', icon: 'sword',  name: '练习木剑',  price: 10, rarity: 'N', type: 'cultivate', desc: '除了结实一点毫无亮点的木剑，也就是给新手练习用的。', roast: '【零七：这是你最初的梦想吗？】' },
+      { id: 'p20', icon: 'shield', name: '粗制木盾',  price: 15, rarity: 'N', type: 'cultivate', desc: '用普通的实木制成，挡挡小石子还行，挡刀就算了。', roast: '【零七：这真的能保命吗？】' },
+
+      // 生活类 (20个)
+      { id: 'l1', icon: 'chip',   name: '恒温杯',     price: 30, rarity: 'N', type: 'life', desc: '无论在什么环境下都能保持内部液体温度恒定，养生必备。', roast: '【零七：老干部的生活从喝热水开始。】' },
+      { id: 'l2', icon: 'shield', name: '易容贴',     price: 100, rarity: 'R', type: 'life', desc: '贴在脸上后可微调面部轮廓和肤色，避开初级电子眼监测。', roast: '【零七：你长得这么有辨识度，这玩意儿真管用？】' },
+      { id: 'l3', icon: 'key',    name: '万能钥匙',   price: 150, rarity: 'R', type: 'life', desc: '零七科技出品的量子干涉钥匙，能无损开启大多数机械 and 基础电子锁。', roast: '【零七：你该不会打算去偷看谁洗澡吧？】' },
+      { id: 'l4', icon: 'chip',   name: '翻译插件',   price: 60, rarity: 'R', type: 'life', desc: '植入终端的插件，支持星盟内 128 种通用语和各族方言的实时互译。', roast: '【零七：妈妈再也不用担心我听不懂鸟语了。】' },
+      { id: 'l5', icon: 'shield', name: '绝缘手套',   price: 40, rarity: 'N', type: 'life', desc: '特制橡胶材料，能有效隔绝 500V 以下的静电和电压。', roast: '【零七：摸电门的时候记得戴上。】' },
+      { id: 'l6', icon: 'book',   name: '兽人语辞典', price: 50, rarity: 'N', type: 'life', desc: '记载了兽人语的常用语和语法逻辑，是和兽人打交道的基础工具书。', roast: '【零七：书中自有颜如玉，书中自有大毛球。】' },
+      { id: 'l7', icon: 'scroll', name: '万能调味粉', price: 30, rarity: 'N', type: 'life', desc: '只需撒上一点，即便是干巴巴的干粮也能吃出五星级酒店的味道。', roast: '【零七：黑暗料理拯救计划核心成员。】' },
+      { id: 'l8', icon: 'book',   name: '食材保鲜袋', price: 20, rarity: 'N', type: 'life', desc: '内含小型低温维持模块，能让里面的食材保持一周的采摘鲜度。', roast: '【零七：这可是美食家的基本素养。】' },
+      { id: 'l9', icon: 'star',   name: '传说食谱',   price: 300, rarity: 'SSR', type: 'life', desc: '孤本。记载了如何利用高能量食材制作出能暂时提升属性的顶级佳肴。', roast: '【零七：吃顿好的，明天还要继续奋斗。】' },
+      { id: 'l10', icon: 'potion', name: '营养液',    price: 20, rarity: 'N', type: 'life', desc: '富含人体每日所需的一切微量元素，一瓶管饱一整天。', roast: '【零七：虽然没味道，但它真的很健康。】' },
+      { id: 'l11', icon: 'chip',   name: '全息投影仪', price: 200, rarity: 'SR', type: 'life', desc: '便携式投影装置，可在任何平面投射出 8K 分辨率的高清互动影像。', roast: '【零七：用来放那种电影简直是绝配。】' },
+      { id: 'l12', icon: 'shield', name: '降噪耳塞',   price: 25, rarity: 'N', type: 'life', desc: '采用自适应降噪算法，能让你在嘈杂的环境中瞬间享受图书馆般的宁静。', roast: '【零七：别吵，让我想想中午吃什么。】' },
+      { id: 'l13', icon: 'key',    name: '私人金库',   price: 500, rarity: 'SSR', type: 'life', desc: '一个小型的个人异次元空间，可以安全存放你最珍贵的私房钱和道具。', roast: '【零七：只有你我知道密码，绝对安全。】' },
+      { id: 'l14', icon: 'chip',   name: '信号干扰器', price: 180, rarity: 'R', type: 'life', desc: '开启后能屏蔽周围十米内的一切无线电和电子监控信号。', roast: '【零七：做坏事必备神器。】' },
+      { id: 'l15', icon: 'shield', name: '防弹背心',   price: 350, rarity: 'SR', type: 'life', desc: '采用陶瓷复合装甲，虽然笨重，但能有效抵挡大部分小口径枪械射击。', roast: '【零七：穿上它，你的命更硬了。】' },
+      { id: 'l16', icon: 'book',   name: '星城导游',   price: 15, rarity: 'N', type: 'life', desc: '收录了星城各大地标、美食店和红灯区的详细地图及评价。', roast: '【零七：最后那个评价是我偷偷加进去的。】' },
+      { id: 'l17', icon: 'scroll', name: '空白卷轴',   price: 50, rarity: 'N', type: 'life', desc: '采用特殊吸能材质制成，可以用来拓印符咒或记录重要信息。', roast: '【零七：一张白纸，任你涂抹。】' },
+      { id: 'l18', icon: 'book',   name: '急救手册',   price: 45, rarity: 'N', type: 'life', desc: '图文并茂地介绍了各种常见伤势的紧急处理方法。', roast: '【零七：希望你永远用不上它。】' },
+      { id: 'l19', icon: 'star',   name: '厨神围裙',   price: 120, rarity: 'R', type: 'life', desc: '不仅能防油污，穿上它后制作料理的成功率将小幅提升。', roast: '【零七：家庭煮夫的进阶之路。】' },
+      { id: 'l20', icon: 'potion', name: '强效清洁剂', price: 35, rarity: 'N', type: 'life', desc: '只要一滴，即便是最顽固的陈年血迹或能量残留也能洗得干干净净。', roast: '【零七：杀人越货、居家旅行必备良品。】' },
+
+      // 情趣类 (20个)
+      { id: 'e1', icon: 'star',   name: '持久膏',     price: 40, rarity: 'N', type: 'erotic', desc: '采用特制清凉成分，能显著降低敏感度，让你在激战中屹立不倒。', roast: '【零七：别逞强，该用就用。】' },
+      { id: 'e2', icon: 'gift',   name: '震动指环',   price: 50, rarity: 'N', type: 'erotic', desc: '佩戴简便，高频震动带来的极致快感会让你们都难以忘怀。', roast: '【零七：指尖上的舞蹈。】' },
+      { id: 'e3', icon: 'zap',    name: '催情香薰',   price: 120, rarity: 'R', type: 'erotic', desc: '点燃后能在房间内营造出暧昧的氛围，让双方的情欲加速升温。', roast: '【零七：氛围组组长已上线。】' },
+      { id: 'e4', icon: 'sword',  name: '精美束缚带', price: 180, rarity: 'SR', type: 'erotic', desc: '柔软的皮革材质，在确保安全的前提下提供恰到好处的压迫感。', roast: '【零七：偶尔换个花样也不错。】' },
+      { id: 'e5', icon: 'star',   name: '丝滑润滑液', price: 30, rarity: 'N', type: 'erotic', desc: '仿生粘液配方，透明无味，极大地减少摩擦带来的不适。', roast: '【零七：丝般顺滑，尽情冲刺。】' },
+      { id: 'e6', icon: 'potion', name: '不可名状液', price: 500, rarity: 'SSR', type: 'erotic', desc: '装在黑色瓶子里的神秘液体，据说能激发内心最深处的原始渴望。', roast: '【零七：后果自负，别怪我没提醒你。】' },
+      { id: 'e7', icon: 'target', name: '特制猫薄荷', price: 45, rarity: 'N', type: 'erotic', desc: '对猫科兽人具有致命诱惑，吸入后会变得异常乖巧且敏感。', roast: '【零七：猫奴必备，让他们欲罢不能。】' },
+      { id: 'e8', icon: 'gift',   name: '蕾丝眼罩',   price: 60, rarity: 'R', type: 'erotic', desc: '蒙上双眼，让其他感官在黑暗中变得更加敏锐。', roast: '【零七：未知的才是最刺激的。】' },
+      { id: 'e9', icon: 'zap',    name: '电击贴片',   price: 220, rarity: 'SR', type: 'erotic', desc: '通过微弱的电流刺激敏感部位，带来痛并快乐着的极致体验。', roast: '【零七：玩得挺花啊，注意安全。】' },
+      { id: 'e10', icon: 'sword',  name: '小皮鞭',    price: 150, rarity: 'R', type: 'erotic', desc: '柔软的手柄配上极具弹性的鞭梢，拍打声清脆悦耳。', roast: '【零七：你是打算当驯兽师吗？】' },
+      { id: 'e11', icon: 'star',   name: '感官增强剂', price: 300, rarity: 'SSR', type: 'erotic', desc: '极大地放大触觉反馈，哪怕是一阵微风拂过也会让你战栗不已。', roast: '【零七：极乐之颠的入场券。】' },
+      { id: 'e12', icon: 'potion', name: '变身药水',   price: 800, rarity: 'SSR', type: 'erotic', desc: '奇迹之水，能让服用者在 24 小时内获得异性的身体特征，或调整体型。', roast: '【零七：开启你的第二人生。】' },
+      { id: 'e13', icon: 'target', name: '暗示铃铛',   price: 110, rarity: 'R', type: 'erotic', desc: '清脆的铃声经过特殊音频处理，能潜移默化地影响听者的情绪。', roast: '【零七：叮铃铃，该调教了。】' },
+      { id: 'e14', icon: 'gift',   name: '温感口球',   price: 130, rarity: 'R', type: 'erotic', desc: '内置温控模块，能保持最适宜的口腔温度，并有效限制言语。', roast: '【零七：安静点，享受现在。】' },
+      { id: 'e15', icon: 'zap',    name: '跳蛋',       price: 70, rarity: 'N', type: 'erotic', desc: '静音设计，多种震动频率切换，无论何时何地都能悄悄享乐。', roast: '【零七：公共场合玩这个真的好吗？】' },
+      { id: 'e16', icon: 'sword',  name: '手铐',       price: 90, rarity: 'N', type: 'erotic', desc: '内衬软毛的钢制手铐，既有禁锢的快感又不会伤到皮肤。', roast: '【零七：你被捕了，罪名是太诱人。】' },
+      { id: 'e17', icon: 'star',   name: '丰胸油',     price: 200, rarity: 'SR', type: 'erotic', desc: '通过特殊的能量循环按摩，能让胸部线条变得更加饱满迷人。', roast: '【零七：男孩子用也有效哦，嘿嘿。】' },
+      { id: 'e18', icon: 'potion', name: '多情水',     price: 350, rarity: 'SR', type: 'erotic', desc: '无色无味，能让饮用者在半小时内变得情感丰富，极度渴望亲近。', roast: '【零七：这是作弊，不过我喜欢。】' },
+      { id: 'e19', icon: 'target', name: '爱心贴纸',   price: 20, rarity: 'N', type: 'erotic', desc: '简单的装饰品，贴在关键位置具有极强的视觉暗示效果。', roast: '【零七：可可爱爱，想把你拆开。】' },
+      { id: 'e20', icon: 'gift',   name: '情趣内衣',   price: 160, rarity: 'R', type: 'erotic', desc: '若隐若现的设计，将身体的曲线美展现得淋漓尽致。', roast: '【零七：穿上它，你就是今晚的主角。】' }
+    ]
+  },
+
+
+  checkin: {
+    title: '每日签到',
+    subtitle: '2778年 8月',
+    checkin: true,
+    month: 8,
+    year: 2778,
+    daysInMonth: 31,
+    firstDay: 5, // 0=Sunday, 5=Friday for Aug 2778 (1st is Friday)
+    get signedDays() {
+      return window.GameState.data.stat_data["零七系统"].签到?.历史记录 || [];
+    },
+    today: 31,
+    get streak() {
+      return window.GameState.data.stat_data["零七系统"].签到?.连续天数 || 0;
+    }
+  }
+};
+
+const iconSVGs = {
+  sword:  '<svg class="item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14.5 17.5L3 6V3h3l11.5 11.5"/><path d="M13 19l6-6"/><line x1="16" y1="16" x2="19" y2="19"/><line x1="18" y1="13" x2="21" y2="10"/></svg>',
+  shield: '<svg class="item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',
+  potion: '<svg class="item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 2h4"/><path d="M9 2v6.34a6 6 0 0 0-1.76 4.24V21h9.52v-8.42A6 6 0 0 0 15 8.34V2z"/></svg>',
+  chip:   '<svg class="item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>',
+  key:    '<svg class="item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>',
+  scroll: '<svg class="item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>',
+  star:   '<svg class="item-icon" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.6"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
+  target: '<svg class="item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>',
+  flag:   '<svg class="item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>',
+  user:   '<svg class="item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
+  zap:    '<svg class="item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>',
+  gift:   '<svg class="item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 1 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>',
+  book:   '<svg class="item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="11" x2="14" y2="11"/></svg>',
+};
+
+function openModal(key, label) {
+  const root = document.getElementById('modal-root');
+  const config = modalConfig[key];
+  if (!config) {
+    showToast(`「${label}」功能将在后续版本中完善`, 'info');
+    return;
+  }
+
+  // Global item detail viewer
+  window.showItemDetail = function(item, isBackpack = false) {
+    const detailOverlay = document.createElement('div');
+    detailOverlay.className = 'modal-overlay';
+    detailOverlay.style.zIndex = '100';
+
+    const useBtnLabel = (item.name === "签到大礼包") ? "立即开启" : "立即使用";
+    const actionBtn = isBackpack
+      ? `<button class="detail-buy-btn" id="use-item-btn" style="background:var(--purple); color:white;">${useBtnLabel}</button>`
+      : `<button class="detail-buy-btn" data-id="${item.id}" data-price="${item.price}" data-name="${item.name}">立即购买</button>`;
+
+    const footerRight = isBackpack
+      ? `<div class="detail-price-wrap"><span class="detail-price-label">当前持有数量</span><span class="detail-price-val" style="color:var(--cyan)">${item.count || 1}</span></div>`
+      : `<div class="detail-price-wrap"><span class="detail-price-label">兑换所需积分</span><span class="detail-price-val">${item.price}</span></div>`;
+
+    detailOverlay.innerHTML = `
+      <div class="modal size-small" style="max-width: 400px; border-color: ${isBackpack ? 'var(--purple)' : 'var(--cyan)'};">
+        <button class="modal-close" id="detail-close-btn">&times;</button>
+        <div class="item-detail-view">
+          <div class="detail-header">
+            <div class="detail-icon-wrap" style="color:${isBackpack ? 'var(--purple-glow)' : 'var(--cyan)'}; border-color:${isBackpack ? 'var(--purple)' : 'var(--cyan)'};">
+              ${iconSVGs[item.icon] || iconSVGs.star}
+            </div>
+            <div class="detail-title-area">
+              <div class="detail-name">${item.name}</div>
+              <div class="detail-rarity"><span class="tag tag-${item.rarity || 'N'}">${item.rarity || 'N'} 级物品</span></div>
+            </div>
+          </div>
+          <div class="detail-body">
+            ${item.desc || '零七：这玩意儿就是字面意思，没啥好介绍的。'}
+          </div>
+          <div class="detail-roast">
+            ${item.roast || '【零七：好东西，别废话。】'}
+          </div>
+          <div class="detail-footer">
+            ${footerRight}
+            ${actionBtn}
+          </div>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(detailOverlay);
+
+    const closeBtn = detailOverlay.querySelector('#detail-close-btn');
+    const close = () => detailOverlay.remove();
+    closeBtn.onclick = close;
+    detailOverlay.onclick = (e) => { if (e.target === detailOverlay) close(); };
+
+    // Bind actions
+    if (isBackpack) {
+      const useBtn = detailOverlay.querySelector('#use-item-btn');
+      useBtn.onclick = () => {
+        const bag = window.GameState.data.stat_data["谢自国"].背包;
+        const effect = window.ItemEffects[item.name];
+
+        if (effect) {
+          const consumed = effect(); // Run the item effect
+          if (consumed) {
+            if (bag[item.name].数量 > 1) {
+              bag[item.name].数量 -= 1;
+            } else {
+              delete bag[item.name];
+            }
+            // Refresh panels
+            window.GameState.refreshUI();
+            // Re-render the bag grid if it's open
+            const overlay = document.getElementById('current-modal-overlay');
+            if (overlay && modalConfig.backpack.bag) {
+              openModal('backpack', '背包'); // Fast re-render
+            }
+          }
+        } else {
+          showToast('【物品使用了，但好像什么都没发生】', 'info');
+        }
+        detailOverlay.remove();
+      };
+    }
+  };
+
+  if (config.bag) {
+    // Render as bag grid — only real items, pad last row with phantom cells
+    const real = config.items.filter(Boolean);
+    const pad = (5 - (real.length % 5)) % 5;
+    const displayItems = [...real, ...Array(pad).fill({phantom:true})];
+
+    const gridHTML = displayItems.map((item, i) => {
+      if (item.phantom) return '<div class="bag-cell phantom"></div>';
+      return `<div class="bag-cell" title="${item.name}" data-idx="${i}">
+        ${iconSVGs[item.icon] || iconSVGs.star}
+        ${item.count > 1 ? `<span class="cell-count">${item.count}</span>` : ''}
+      </div>`;
+    }).join('');
+
+    const modalHTML = `
+      <div class="modal-overlay" id="current-modal-overlay" onclick="event.target===this&&this.parentElement&&document.getElementById('modal-root').innerHTML=''">
+        <div class="modal size-medium" role="dialog" aria-labelledby="modal-title">
+          <button class="modal-close" id="modal-close-btn" aria-label="关闭">&times;</button>
+          <div class="modal-title" id="modal-title">${config.title}</div>
+          <div class="modal-subtitle">${config.subtitle}</div>
+          <div class="bag-grid">${gridHTML}</div>
+        </div>
+      </div>
+    `;
+
+    root.innerHTML = modalHTML;
+
+    const overlay = document.getElementById('current-modal-overlay');
+    const closeBtn = document.getElementById('modal-close-btn');
+    function closeModal() { root.innerHTML = ''; }
+    closeBtn.addEventListener('click', closeModal);
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) closeModal(); });
+    document.addEventListener('keydown', function escH(e) {
+      if (e.key === 'Escape') { closeModal(); document.removeEventListener('keydown', escH); }
+    });
+
+    // Click item to show details
+    if (!config._bound) {
+      root.addEventListener('click', (e) => {
+        const cell = e.target.closest('.bag-cell:not(.phantom)');
+        if (cell) {
+          const idx = parseInt(cell.dataset.idx);
+          const realItems = config.items.filter(Boolean);
+          const item = realItems[idx];
+          if (item) showItemDetail(item, true); // true for backpack mode
+        }
+      });
+      config._bound = true;
+    }
+    return;
+  }
+
+  if (config.social) {
+    let currentSocialIdx = 0;
+    const totalSocial = config.items.length;
+
+    // Persist and load custom avatars
+    const savedAvatars = JSON.parse(localStorage.getItem('NPC_AVATARS') || '{}');
+    config.items.forEach(item => {
+      if (savedAvatars[item.id]) item.avatar = savedAvatars[item.id];
+    });
+
+    function renderSocialSlides() {
+      return config.items.map((s, idx) => {
+        const favorPct = Math.min(100, s.favor / 3000 * 100);
+        const avatarImg = s.avatar ? `<img src="${s.avatar}">` : iconSVGs.user;
+
+        return `
+        <div class="social-slide">
+          <div class="glow-border-wrap" style="border-radius:10px;">
+            <div class="social-card" data-social-id="${s.id}" data-idx="${idx}">
+              <div class="social-card-header">
+                <div class="social-avatar" data-id="${s.id}" title="点击上传头像">
+                  ${avatarImg}
+                  <div class="avatar-upload-overlay">更换头像</div>
+                </div>
+                <div style="display:flex; flex-direction:column;">
+                  <span class="social-name">${s.name}</span>
+                  <span class="social-type">${s.type} · ${s.species}</span>
+                </div>
+                <span class="social-status lv-${s.status}">${s.status}</span>
+              </div>
+              <div class="social-progress-wrap">
+                <span class="social-favor-text">${s.favor}</span>
+                <span class="social-progress-bar"><span class="social-progress-fill" style="width:${favorPct}%"></span></span>
+                <span class="social-level-text">${s.level}</span>
+              </div>
+              <div class="social-detail">
+                <div class="dossier-grid">
+                  <div class="dossier-column">
+                    <div class="dossier-group-title">基础信息</div>
+                    <div class="prop-row"><span class="prop-label">年龄</span><span class="prop-val">${s.basic.age}</span></div>
+                    <div class="prop-row"><span class="prop-label">身份</span><span class="prop-val">${s.basic.identity}</span></div>
+                    <div class="dossier-group-title" style="margin-top:12px;">职业档案</div>
+                    <div class="prop-row"><span class="prop-label">职业</span><span class="prop-val">${s.job.name}</span></div>
+                    <div class="prop-row"><span class="prop-label">派系</span><span class="prop-val">${s.job.faction}</span></div>
+                    <div class="prop-row"><span class="prop-label">天赋</span><span class="prop-val" style="color:var(--gold); font-weight:700;">${s.job.talent}</span></div>
+                    <div class="prop-row"><span class="prop-label">境界</span><span class="prop-val">${s.job.rank}</span></div>
+                  </div>
+                  <div class="dossier-column">
+                    <div class="dossier-group-title">衣物状态</div>
+                    <div class="clothes-mini-grid">
+                      <div class="prop-row"><span class="prop-label">上装</span><span class="prop-val">${s.clothes.top}</span></div>
+                      <div class="prop-row"><span class="prop-label">下装</span><span class="prop-val">${s.clothes.bottom}</span></div>
+                      <div class="prop-row"><span class="prop-label">内衣</span><span class="prop-val">${s.clothes.inner}</span></div>
+                      <div class="prop-row"><span class="prop-label">鞋履</span><span class="prop-val">${s.clothes.shoes}</span></div>
+                      <div class="prop-row"><span class="prop-label">配饰</span><span class="prop-val">${s.clothes.acc}</span></div>
+                    </div>
+                    <div class="dossier-group-title" style="margin-top:12px;">生理指标</div>
+                    <div class="physical-status">
+                      <div class="prop-row"><span class="prop-label">性器</span><span class="prop-val">${s.penis}</span></div>
+                      <div class="excitement-bar-wrap">
+                        <span class="excitement-label">兴奋值 ${s.excitement}%</span>
+                        <div class="excitement-bar"><div class="excitement-fill" style="width:${s.excitement}%"></div></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="dossier-group-title">实时状态</div>
+                <div class="prop-row"><span class="prop-label">当前位置</span><span class="prop-val">${s.current.location}</span></div>
+                <div class="prop-row"><span class="prop-label">当前心情</span><span class="prop-val">${s.current.mood}</span></div>
+                <div class="thought-box">
+                  <div class="thought-text">“${s.current.thought}”</div>
+                </div>
+                <div class="social-roast">${s.roast}</div>
+              </div>
+            </div>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    function renderDots() {
+      return config.items.map((_, i) => `<div class="social-dot ${i===0?'active':''}" data-idx="${i}"></div>`).join('');
+    }
+
+    // Hidden file input for avatar selection
+    let uploader = document.getElementById('avatar-uploader');
+    if (!uploader) {
+      uploader = document.createElement('input');
+      uploader.type = 'file';
+      uploader.id = 'avatar-uploader';
+      uploader.accept = 'image/*';
+      uploader.style.display = 'none';
+      document.body.appendChild(uploader);
+    }
+
+    const modalHTML = `
+      <div class="modal-overlay" id="current-modal-overlay">
+        <div class="modal size-large" role="dialog" aria-labelledby="modal-title">
+          <button class="modal-close" id="modal-close-btn" aria-label="关闭">&times;</button>
+          <div class="modal-title" id="modal-title">${config.title}</div>
+
+          <div class="social-nav">
+            <button class="social-nav-btn" id="social-prev" title="上一个">
+              <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+            </button>
+            <div class="social-nav-name" id="social-nav-name">${config.items[0].name}</div>
+            <button class="social-nav-btn" id="social-next" title="下一个">
+              <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+            </button>
+          </div>
+
+          <div class="social-slider-wrap" id="social-slider-wrap">
+            <div class="social-slider-track" id="social-slider-track">
+              ${renderSocialSlides()}
+            </div>
+          </div>
+
+          <div class="social-dots" id="social-dots">
+            ${renderDots()}
+          </div>
+        </div>
+      </div>
+    `;
+
+    root.innerHTML = modalHTML;
+    const overlay = document.getElementById('current-modal-overlay');
+    const closeBtn = document.getElementById('modal-close-btn');
+    const track = document.getElementById('social-slider-track');
+    const navName = document.getElementById('social-nav-name');
+    const dotsContainer = document.getElementById('social-dots');
+
+    function updateSocialDisplay(withAnim = true) {
+      track.style.transform = `translateX(-${currentSocialIdx * 100}%)`;
+      navName.textContent = config.items[currentSocialIdx].name;
+
+      // Update dots
+      document.querySelectorAll('.social-dot').forEach((dot, i) => {
+        dot.classList.toggle('active', i === currentSocialIdx);
+      });
+
+      // Apply hologram animation to the card
+      if (withAnim) {
+        const activeCard = track.querySelectorAll('.social-card')[currentSocialIdx];
+        activeCard.classList.remove('hologram-anim');
+        void activeCard.offsetWidth; // trigger reflow
+        activeCard.classList.add('hologram-anim');
+      }
+    }
+
+    // Initial animation for first slide
+    setTimeout(() => updateSocialDisplay(true), 10);
+
+    function closeModal() {
+      overlay.style.opacity = '0';
+      overlay.querySelector('.modal').style.transform = 'scale(0.92) translateY(20px)';
+      setTimeout(() => { root.innerHTML = ''; }, 200);
+    }
+
+    closeBtn.addEventListener('click', closeModal);
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) closeModal(); });
+
+    document.getElementById('social-prev').addEventListener('click', () => {
+      currentSocialIdx = (currentSocialIdx - 1 + totalSocial) % totalSocial;
+      updateSocialDisplay();
+    });
+    document.getElementById('social-next').addEventListener('click', () => {
+      currentSocialIdx = (currentSocialIdx + 1) % totalSocial;
+      updateSocialDisplay();
+    });
+
+    // Dot navigation
+    dotsContainer.addEventListener('click', (e) => {
+      const dot = e.target.closest('.social-dot');
+      if (dot) {
+        currentSocialIdx = parseInt(dot.dataset.idx);
+        updateSocialDisplay();
+      }
+    });
+
+    // Avatar upload logic
+    let targetNpcId = null;
+    root.addEventListener('click', (e) => {
+      const avatar = e.target.closest('.social-avatar');
+      if (avatar) {
+        targetNpcId = avatar.dataset.id;
+        uploader.click();
+      }
+    });
+
+    uploader.onchange = (e) => {
+      const file = e.target.files[0];
+      if (file && targetNpcId) {
+        const reader = new FileReader();
+        reader.onload = (re) => {
+          const base64 = re.target.result;
+          // Update modalConfig
+          const item = config.items.find(i => i.id === targetNpcId);
+          if (item) item.avatar = base64;
+          // Persist to localStorage
+          const storage = JSON.parse(localStorage.getItem('NPC_AVATARS') || '{}');
+          storage[targetNpcId] = base64;
+          localStorage.setItem('NPC_AVATARS', JSON.stringify(storage));
+          // Re-render slides
+          track.innerHTML = renderSocialSlides();
+          updateSocialDisplay(false);
+          showToast('头像更新成功', 'success');
+        };
+        reader.readAsDataURL(file);
+      }
+    };
+
+    // Touch events for mobile
+    let touchStartX = 0;
+    const sliderWrap = document.getElementById('social-slider-wrap');
+    sliderWrap.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; }, {passive: true});
+    sliderWrap.addEventListener('touchend', e => {
+      const touchEndX = e.changedTouches[0].screenX;
+      const diff = touchStartX - touchEndX;
+      if (Math.abs(diff) > 50) {
+        if (diff > 0) currentSocialIdx = (currentSocialIdx + 1) % totalSocial;
+        else currentSocialIdx = (currentSocialIdx - 1 + totalSocial) % totalSocial;
+        updateSocialDisplay();
+      }
+    }, {passive: true});
+
+    return;
+  }
+
+  if (config.quest) {
+    // Render as quest list with tabs
+    const activeQuests = config.items.filter(q => q.status !== '已完成');
+    const completedQuests = config.completed || [];
+
+    const renderQuestCards = (qs) => qs.map(q => {
+      const statusClass = q.status === '进行中' ? 'status-进行中' : q.status === '新' ? 'status-新' : q.status === '已完成' ? 'status-已完成' : 'status-待定';
+      return `
+      <div class="quest-card ${statusClass}" data-quest-id="${q.id}">
+        <div class="quest-card-header">
+          <span class="quest-id">${q.id}</span>
+          <span class="quest-card-title">${q.name}</span>
+          <span class="quest-type-badge quest-type-${q.type}">${q.type}</span>
+          <span class="tag tag-${q.status}">${q.status}</span>
+        </div>
+        <div class="quest-card-desc">${q.desc}</div>
+        <div class="quest-card-meta">
+          <span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+            ${q.location}
+          </span>
+          <span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            ${q.reward}
+          </span>
+        </div>
+      </div>`;
+    }).join('');
+
+    const activeHTML = renderQuestCards(activeQuests);
+    const completedHTML = completedQuests.length > 0 ? renderQuestCards(completedQuests) : '<div class="empty-state">暂无已完成任务</div>';
+
+    const modalHTML = `
+      <div class="modal-overlay" id="current-modal-overlay" onclick="event.target===this&&this.parentElement&&document.getElementById('modal-root').innerHTML=''">
+        <div class="modal size-large" role="dialog" aria-labelledby="modal-title">
+          <button class="modal-close" id="modal-close-btn" aria-label="关闭">&times;</button>
+          <div class="modal-title" id="modal-title">${config.title}</div>
+          <div class="modal-subtitle">${config.subtitle}</div>
+          <div class="quest-tabs">
+            <button class="quest-tab active" data-tab="active">进行中 (${activeQuests.length})</button>
+            <button class="quest-tab" data-tab="completed">已完成 (${completedQuests.length})</button>
+          </div>
+          <div class="quest-list quest-tab-content active" id="quest-active">${activeHTML}</div>
+          <div class="quest-list quest-tab-content" id="quest-completed">${completedHTML}</div>
+        </div>
+      </div>
+    `;
+
+    root.innerHTML = modalHTML;
+
+    const overlay = document.getElementById('current-modal-overlay');
+    const closeBtn = document.getElementById('modal-close-btn');
+    function closeModal() { root.innerHTML = ''; }
+    closeBtn.addEventListener('click', closeModal);
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) closeModal(); });
+    document.addEventListener('keydown', function escH(e) {
+      if (e.key === 'Escape') { closeModal(); document.removeEventListener('keydown', escH); }
+    });
+
+    // Tab switching
+    if (!config._bound) {
+      root.addEventListener('click', (e) => {
+        const tabBtn = e.target.closest('.quest-tab');
+        if (tabBtn) {
+          const tab = tabBtn.dataset.tab;
+          root.querySelectorAll('.quest-tab').forEach(b => b.classList.remove('active'));
+          tabBtn.classList.add('active');
+          root.querySelectorAll('.quest-tab-content').forEach(c => c.classList.remove('active'));
+          document.getElementById('quest-' + tab)?.classList.add('active');
+        }
+        // Click quest card for details
+        const card = e.target.closest('.quest-card');
+        if (card) {
+          const qid = card.dataset.questId;
+          const allQuests = [...config.items, ...(config.completed || [])];
+          const q = allQuests.find(i => i.id === qid);
+          if (q) showToast(`${q.name} — ${q.status} · ${q.type}`, 'info');
+        }
+      });
+      config._bound = true;
+    }
+    return;
+  }
+
+  if (config.checkin) {
+    let currentMonth = config.month;
+    let currentYear = config.year;
+
+    function renderCalendar() {
+      // Calculate calendar logic based on real Date object
+      // Month in JS Date is 0-indexed (0=Jan, 7=Aug)
+      const firstDayDate = new Date(currentYear, currentMonth - 1, 1);
+      const lastDayDate = new Date(currentYear, currentMonth, 0);
+
+      const firstDayOfWeek = firstDayDate.getDay(); // 0=Sun, 1=Mon...
+      const daysInMonth = lastDayDate.getDate();
+
+      const isCurrentMonth = currentYear === config.year && currentMonth === config.month;
+
+      const days = ['日', '一', '二', '三', '四', '五', '六'];
+      const headerHTML = days.map(d => `<div class="calendar-day-header">${d}</div>`).join('');
+
+      let cellsHTML = '';
+      // Empty cells before 1st day
+      for (let i = 0; i < firstDayOfWeek; i++) {
+        cellsHTML += `<div class="calendar-cell empty"></div>`;
+      }
+      // Days of month
+      for (let i = 1; i <= daysInMonth; i++) {
+        let cls = 'calendar-cell';
+        if (isCurrentMonth && i === config.today) cls += ' today';
+        if (isCurrentMonth && config.signedDays.includes(i)) cls += ' signed';
+        cellsHTML += `<div class="${cls}">${i}</div>`;
+      }
+
+      return {
+        title: `${currentYear}年 ${currentMonth}月`,
+        canSign: isCurrentMonth && !config.signedDays.includes(config.today),
+        alreadySigned: isCurrentMonth && config.signedDays.includes(config.today),
+        html: `
+          <div class="calendar-grid">
+            ${headerHTML}
+            ${cellsHTML}
+          </div>`
+      };
+    }
+
+    function initCalendarModal() {
+      const calData = renderCalendar();
+      const modalHTML = `
+        <div class="modal-overlay" id="current-modal-overlay">
+          <div class="modal size-medium" role="dialog" aria-labelledby="modal-title">
+            <button class="modal-close" id="modal-close-btn" aria-label="关闭">&times;</button>
+            <div class="modal-title" id="modal-title">${config.title}</div>
+
+            <div class="calendar-nav">
+              <button class="calendar-nav-btn" id="cal-prev" title="上个月">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+              </button>
+              <div class="modal-subtitle" id="cal-subtitle" style="margin-bottom:0; flex:1; text-align:center;">${calData.title}</div>
+              <button class="calendar-nav-btn" id="cal-next" title="下个月">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+              </button>
+            </div>
+
+            <div class="checkin-container" style="margin-top:16px;">
+              <div class="checkin-header">
+                <div class="checkin-streak">
+                  已连续签到 <span class="checkin-streak-num">${config.streak}</span> 天
+                </div>
+                <button class="checkin-btn" id="do-checkin-btn" ${!calData.canSign ? 'disabled class="checkin-btn disabled"' : ''}>
+                  ${calData.alreadySigned ? '今日已签到' : (!calData.canSign ? '未到签到时间' : '呼唤零七签到')}
+                </button>
+              </div>
+
+              <div id="cal-grid-wrapper">
+                ${calData.html}
+              </div>
+
+              <div class="checkin-rewards">
+                <div class="reward-card days-7">
+                  <div class="reward-title">连签 7 天奖励</div>
+                  <div class="reward-desc">100 积分 + 随机紫色道具</div>
+                </div>
+                <div class="reward-card days-15">
+                  <div class="reward-title">连签 15 天奖励</div>
+                  <div class="reward-desc">200 积分 + 随机金色道具</div>
+                </div>
+                <div class="reward-card days-30">
+                  <div class="reward-title">连签 30 天奖励</div>
+                  <div class="reward-desc">500 积分 + 商城八折券</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      const root = document.getElementById('modal-root');
+      root.innerHTML = modalHTML;
+
+      const overlay = document.getElementById('current-modal-overlay');
+      const closeBtn = document.getElementById('modal-close-btn');
+      function closeModal() {
+        overlay.style.opacity = '0';
+        overlay.querySelector('.modal').style.transform = 'scale(0.92) translateY(20px)';
+        overlay.querySelector('.modal').style.opacity = '0';
+        overlay.querySelector('.modal').style.transition = 'all 0.2s ease-in';
+        setTimeout(() => { document.getElementById('modal-root').innerHTML = ''; }, 200);
+      }
+      closeBtn.addEventListener('click', closeModal);
+      overlay.addEventListener('click', (e) => { if (e.target === overlay) closeModal(); });
+      document.addEventListener('keydown', function escH(e) {
+        if (e.key === 'Escape') { closeModal(); document.removeEventListener('keydown', escH); }
+      });
+
+      // Bind calendar nav
+      document.getElementById('cal-prev').addEventListener('click', () => {
+        currentMonth--;
+        if (currentMonth < 1) { currentMonth = 12; currentYear--; }
+        updateCalendarView();
+      });
+      document.getElementById('cal-next').addEventListener('click', () => {
+        currentMonth++;
+        if (currentMonth > 12) { currentMonth = 1; currentYear++; }
+        updateCalendarView();
+      });
+
+      const doBtn = document.getElementById('do-checkin-btn');
+      if (doBtn) {
+        doBtn.addEventListener('click', () => {
+          if (currentYear === config.year && currentMonth === config.month && !config.signedDays.includes(config.today)) {
+            // --- 联动逻辑开始 ---
+            const sys = window.GameState.data.stat_data["零七系统"];
+            const user = window.GameState.data.stat_data["谢自国"];
+
+            // 1. 更新签到状态
+            if(!sys.签到) sys.签到 = { 今日已签到: false, 连续天数: 0, 历史记录: [] };
+            sys.签到.今日已签到 = true;
+            sys.签到.历史记录.push(config.today);
+            sys.签到.连续天数 += 1;
+
+            // 2. 奖励联动：获得积分 (进入商店余额)
+            const bonusPoints = 100;
+            sys.积分 = (sys.积分 || 0) + bonusPoints;
+
+            // 3. 奖励联动：获得物品 (进入背包)
+            const bonusItemName = "签到大礼包";
+            if (user.背包[bonusItemName]) {
+              user.背包[bonusItemName].数量 += 1;
+            } else {
+              user.背包[bonusItemName] = {
+                数量: 1,
+                描述: "每日勤奋签到的证明，打开可获得神秘惊喜。",
+                图标: "gift",
+                品质: "SR"
+              };
+            }
+
+            // 4. 更新相关 UI 徽章
+            const bagBadge = document.querySelector('.menu-item[data-action="backpack"] .menu-item-badge');
+            if (bagBadge) bagBadge.textContent = Object.keys(user.背包).length;
+
+            const shopBadge = document.querySelector('.menu-item[data-action="shop"] .menu-item-badge');
+            if (shopBadge) shopBadge.textContent = sys.积分;
+
+            showToast(`【签到成功！连续${sys.签到.连续天数}天】获得：${bonusPoints}积分、${bonusItemName}`, 'success');
+            // --- 联动逻辑结束 ---
+
+            updateCalendarView();
+          }
+        });
+      }
+    }
+
+    function updateCalendarView() {
+      const calData = renderCalendar();
+      document.getElementById('cal-subtitle').textContent = calData.title;
+      document.getElementById('cal-grid-wrapper').innerHTML = calData.html;
+
+      // FIX: Update the streak text in the UI
+      const streakNum = document.querySelector('.checkin-streak-num');
+      if (streakNum) streakNum.textContent = config.streak;
+
+      const doBtn = document.getElementById('do-checkin-btn');
+      if (doBtn) {
+        if (!calData.canSign) {
+          doBtn.disabled = true;
+          doBtn.className = 'checkin-btn disabled';
+          doBtn.textContent = calData.alreadySigned ? '今日已签到' : '未到签到时间';
+        } else {
+          doBtn.disabled = false;
+          doBtn.className = 'checkin-btn';
+          doBtn.textContent = '呼唤零七签到';
+        }
+      }
+    }
+
+    initCalendarModal();
+    return;
+  }
+
+  if (config.shop) {
+    let activeCat = 'life'; // 默认页
+
+    function refreshShopItems() {
+      const weights = { SSR: 1, SR: 4, R: 10, N: 60 };
+      const categories = ['life', 'cultivate', 'erotic'];
+
+      // 为每个分类生成独立的 20 个不重复物品
+      config.categoryItems = {};
+
+      categories.forEach(cat => {
+        // 如果是 life，同时也包含 chef 类型的物品
+        const pool = config.masterPool.filter(i => i.type === cat || (cat === 'life' && i.type === 'chef'));
+        const newItems = [];
+        const tempPool = [...pool];
+
+        // 抽取逻辑
+        const targetCount = config.pageSize; // 20个
+
+        // 只要池子还有货，就继续抽，直到抽满 20 个
+        while (newItems.length < targetCount && tempPool.length > 0) {
+          let totalWeight = 0;
+          tempPool.forEach(item => { totalWeight += (weights[item.rarity] || 10); });
+
+          let random = Math.random() * totalWeight;
+          for (let i = 0; i < tempPool.length; i++) {
+            const weight = weights[tempPool[i].rarity] || 10;
+            if (random < weight) {
+              const selected = tempPool.splice(i, 1)[0];
+              newItems.push({...selected});
+              break;
+            }
+            random -= weight;
+          }
+        }
+
+        // 如果池子抽干了还没满 20 个，则用“已售罄”或空位填充（但此处我们刚才增加了物品，应该够了）
+        config.categoryItems[cat] = newItems;
+      });
+    }
+
+    if (!config.categoryItems) refreshShopItems();
+
+    function renderShopContent() {
+      const tabs = [
+        { id: 'life', name: '生活用品' },
+        { id: 'cultivate', name: '修炼资源' },
+        { id: 'erotic', name: '情趣道具' }
+      ];
+
+      const tabsHTML = `
+        <div class="shop-tabs" style="margin-bottom: 12px; display: flex; gap: 8px;">
+          ${tabs.map(t => `<div class="shop-tab ${activeCat === t.id ? 'active' : ''}" data-cat="${t.id}" style="flex:1; padding: 8px; text-align:center; border: 1px solid var(--border-subtle); border-radius:4px; cursor:pointer; font-size:12px;">${t.name}</div>`).join('')}
+        </div>
+      `;
+
+      const currentList = config.categoryItems[activeCat] || [];
+      const gridHTML = currentList.map(item => `
+        <div class="shop-card rarity-${item.rarity || 'N'}" data-item-id="${item.id}">
+          <div class="roast-bubble">${item.roast || '【零七：好东西，不买后悔。】'}</div>
+          <div class="shop-card-icon">${iconSVGs[item.icon] || iconSVGs.star}</div>
+          <div class="shop-card-name">${item.name}</div>
+          <div class="shop-card-desc">${item.desc || '零七：这玩意儿就是字面意思，没啥好介绍的。'}</div>
+          <div class="shop-card-price">${item.price} 积分</div>
+          <button class="buy-btn" data-id="${item.id}" data-price="${item.price}" data-name="${item.name}">购买</button>
+        </div>
+      `).join('');
+
+      return { tabsHTML, gridHTML };
+    }
+
+    function initShopModal() {
+      const content = renderShopContent();
+
+      // --- 商品池管理逻辑 ---
+      function openPoolManager() {
+        const poolOverlay = document.createElement('div');
+        poolOverlay.className = 'modal-overlay';
+        poolOverlay.style.zIndex = '150';
+
+        let currentPoolCat = 'life';
+
+        function renderPoolList() {
+          const filtered = config.masterPool.filter(i => i.type === currentPoolCat || (currentPoolCat === 'life' && i.type === 'chef'));
+          return filtered.map(item => `
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:8px; border-bottom:1px solid rgba(255,255,255,0.05); font-size:12px;">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span style="color:var(--text-tertiary); font-family:var(--font-mono); width:30px;">${item.id}</span>
+                <span style="color:var(--cyan); font-weight:700;">${item.name}</span>
+                <span class="tag tag-${item.rarity || 'N'}" style="transform:scale(0.8)">${item.rarity || 'N'}</span>
+              </div>
+              <div style="color:var(--gold); font-family:var(--font-mono);">${item.price}P</div>
+            </div>
+          `).join('');
+        }
+
+        function updatePoolView() {
+          const list = poolOverlay.querySelector('#pool-items-list');
+          if (list) list.innerHTML = renderPoolList();
+          poolOverlay.querySelectorAll('.pool-tab').forEach(t => {
+            t.style.borderColor = t.dataset.cat === currentPoolCat ? 'var(--cyan)' : 'var(--border-subtle)';
+            t.style.color = t.dataset.cat === currentPoolCat ? 'var(--cyan)' : 'var(--text-tertiary)';
+          });
+        }
+
+        poolOverlay.innerHTML = `
+          <div class="modal size-large" style="max-width:600px; height:80vh; display:flex; flex-direction:column; border-color:var(--purple);">
+            <button class="modal-close" id="pool-close-btn">&times;</button>
+            <div class="modal-title">核心库存管理</div>
+            <div class="modal-subtitle">当前库内共有 ${config.masterPool.length} 件商品</div>
+
+            <div style="display:flex; gap:8px; margin-bottom:12px;">
+              <div class="pool-tab" data-cat="life" style="flex:1; padding:6px; text-align:center; border:1px solid var(--border-subtle); border-radius:4px; cursor:pointer; font-size:12px;">生活</div>
+              <div class="pool-tab" data-cat="cultivate" style="flex:1; padding:6px; text-align:center; border:1px solid var(--border-subtle); border-radius:4px; cursor:pointer; font-size:12px;">修炼</div>
+              <div class="pool-tab" data-cat="erotic" style="flex:1; padding:6px; text-align:center; border:1px solid var(--border-subtle); border-radius:4px; cursor:pointer; font-size:12px;">情趣</div>
+            </div>
+
+            <div id="pool-items-list" style="flex:1; overflow-y:auto; background:rgba(0,0,0,0.2); border-radius:6px; padding:4px; border:1px solid var(--border-subtle);">
+              ${renderPoolList()}
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:16px;">
+              <button id="pool-copy-btn" class="buy-btn" style="background:rgba(168,85,247,0.1); border:1px solid var(--purple); color:var(--purple-glow);">复制数据模板</button>
+              <button id="pool-add-btn" class="buy-btn" style="background:rgba(0,229,255,0.1); border:1px solid var(--cyan); color:var(--cyan);">注入新商品</button>
+            </div>
+            <div style="margin-top:8px; font-size:10px; color:var(--text-tertiary); text-align:center;">
+              复制后的格式可直接发给 AI，让它帮你扩充库容。
+            </div>
+          </div>
+        `;
+        document.body.appendChild(poolOverlay);
+        updatePoolView();
+
+        poolOverlay.querySelector('#pool-close-btn').onclick = () => poolOverlay.remove();
+        poolOverlay.addEventListener('click', (e) => {
+          if (e.target === poolOverlay) poolOverlay.remove();
+          const tab = e.target.closest('.pool-tab');
+          if (tab) {
+            currentPoolCat = tab.dataset.cat;
+            updatePoolView();
+          }
+        });
+
+        // 复制功能
+        poolOverlay.querySelector('#pool-copy-btn').onclick = () => {
+          const data = JSON.stringify(config.masterPool, null, 2);
+          const prompt = `你是一个深渊系统的物品库生成器。请参考以下已有的商品池格式，为我新增一批商品。
+要求：
+1. 保持 JSON 格式正确。
+2. ID 顺着写（如 e21, l21, p21 等）。
+3. 文案要保持“零七”毒舌吐槽的风格。
+4. 按类别（life/cultivate/erotic）生成。
+
+当前库数据：
+${data}`;
+          navigator.clipboard.writeText(prompt).then(() => {
+            showToast('已复制 AI 提示词与数据模板', 'success');
+          });
+        };
+
+        // 注入功能
+        poolOverlay.querySelector('#pool-add-btn').onclick = () => {
+          const addOverlay = document.createElement('div');
+          addOverlay.className = 'modal-overlay';
+          addOverlay.style.zIndex = '200';
+          addOverlay.innerHTML = `
+            <div class="modal size-small" style="max-width:450px; border-color:var(--cyan);">
+              <div class="modal-title">数据注入</div>
+              <div class="modal-subtitle">请粘贴 AI 生成的商品 JSON 数组</div>
+              <textarea id="pool-inject-area" style="width:100%; height:250px; background:#06060E; border:1px solid var(--border-glow); border-radius:6px; color:var(--cyan); font-family:var(--font-mono); font-size:11px; padding:10px; outline:none;" placeholder="[ { 'id': '...', ... }, ... ]"></textarea>
+              <div style="display:flex; gap:10px; margin-top:12px;">
+                <button id="inject-cancel" class="buy-btn" style="background:transparent; border:1px solid var(--text-tertiary); color:var(--text-tertiary);">取消</button>
+                <button id="inject-confirm" class="buy-btn">立即注入</button>
+              </div>
+            </div>
+          `;
+          document.body.appendChild(addOverlay);
+
+          addOverlay.querySelector('#inject-cancel').onclick = () => addOverlay.remove();
+          addOverlay.querySelector('#inject-confirm').onclick = () => {
+            const raw = addOverlay.querySelector('#pool-inject-area').value.trim();
+            try {
+              // 处理可能的 JS 对象格式（非纯 JSON）
+              const sanitized = raw.replace(/(\w+):/g, '"$1"').replace(/'/g, '"');
+              const newItems = JSON.parse(sanitized);
+              if (Array.isArray(newItems)) {
+                config.masterPool.push(...newItems);
+                localStorage.setItem('SHOP_MASTER_POOL', JSON.stringify(config.masterPool));
+                showToast(`成功注入 ${newItems.length} 个新商品！`, 'success');
+                refreshShopItems();
+                updatePoolView();
+                addOverlay.remove();
+              } else {
+                throw new Error('必须是数组格式');
+              }
+            } catch (err) {
+              showToast('数据格式错误，请检查是否为标准数组', 'error');
+              console.error(err);
+            }
+          };
+        };
+      }
+
+      const modalHTML = `
+        <div class="modal-overlay" id="current-modal-overlay">
+          <div class="modal size-large" role="dialog" aria-labelledby="modal-title" style="max-width: 850px; height: 85vh; display: flex; flex-direction: column;">
+            <button class="modal-close" id="modal-close-btn" aria-label="关闭">&times;</button>
+            <div class="modal-title" id="modal-title">${config.title}</div>
+            <div class="modal-subtitle">零七：三大仓库已补货，每页 20 个坑位，无限供应。</div>
+
+            <div class="shop-header-row">
+              <div class="shop-balance">
+                <div style="display:flex; flex-direction:column;">
+                  <span class="balance-label">可用系统积分</span>
+                  <span class="balance-value" id="shop-balance-val">${config.balance}</span>
+                </div>
+                <button id="pool-mgr-btn" title="查看/管理商品库" style="background:rgba(168,85,247,0.15); border:1px solid var(--purple); border-radius:4px; color:var(--purple-glow); padding:4px 8px; font-size:11px; cursor:pointer; margin-left:12px; transition:0.2s;">
+                  <svg style="width:14px; height:14px; vertical-align:middle; margin-right:4px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h7"/></svg>商品库
+                </button>
+              </div>
+              <button class="refresh-btn" id="shop-refresh-btn">
+                <span class="btn-text">全库刷新</span>
+                <span class="btn-price">-${config.refreshPrice} 积分</span>
+              </button>
+            </div>
+
+            <div id="shop-tabs-container">${content.tabsHTML}</div>
+            <div id="shop-scroll-area" style="flex: 1; overflow-y: auto; padding-right: 4px;">
+              <div class="shop-grid" id="shop-grid-inner">${content.gridHTML}</div>
+            </div>
+
+            <div style="margin-top: 12px; font-size: 11px; color: var(--text-tertiary); text-align: center; border-top: 1px solid var(--border-subtle); padding-top: 8px;">
+              提示：如果你发现商品买腻了，可以点击左侧按钮管理库容。
+            </div>
+          </div>
+        </div>
+      `;
+
+      const root = document.getElementById('modal-root');
+      root.innerHTML = modalHTML;
+      const overlay = document.getElementById('current-modal-overlay');
+      const closeBtn = document.getElementById('modal-close-btn');
+
+      function closeModal() { root.innerHTML = ''; }
+      closeBtn.addEventListener('click', closeModal);
+      overlay.addEventListener('click', (e) => { if (e.target === overlay) closeModal(); });
+
+      root.addEventListener('click', (e) => {
+        // 商品库管理按钮
+        const poolMgrBtn = e.target.closest('#pool-mgr-btn');
+        if (poolMgrBtn) {
+          openPoolManager();
+          return;
+        }
+
+        // 详情购买逻辑
+        const detailBuyBtn = e.target.closest('.detail-buy-btn');
+        if (detailBuyBtn) {
+          const price = parseInt(detailBuyBtn.dataset.price);
+          const name = detailBuyBtn.dataset.name;
+          const itemId = detailBuyBtn.dataset.id;
+          handlePurchase(itemId, name, price);
+          return;
+        }
+
+        // 切换分类
+        const tab = e.target.closest('.shop-tab');
+        if (tab) {
+          activeCat = tab.dataset.cat;
+          const updated = renderShopContent();
+          document.getElementById('shop-tabs-container').innerHTML = updated.tabsHTML;
+          document.getElementById('shop-grid-inner').innerHTML = updated.gridHTML;
+          return;
+        }
+
+        // 刷新逻辑
+        const refreshBtn = e.target.closest('#shop-refresh-btn');
+        if (refreshBtn) {
+          if (config.balance >= config.refreshPrice) {
+            config.balance -= config.refreshPrice;
+            refreshShopItems();
+            const updated = renderShopContent();
+            document.getElementById('shop-balance-val').textContent = config.balance;
+            document.getElementById('shop-grid-inner').innerHTML = updated.gridHTML;
+            showToast('【零七：全线商品已重置，看看新货。】', 'success');
+          } else {
+            showToast('【零七：没积分了。】', 'error');
+          }
+          return;
+        }
+
+        // 购买逻辑
+        const buyBtn = e.target.closest('.buy-btn');
+        if (buyBtn) {
+          e.stopPropagation(); // 阻止触发详情弹窗
+          const price = parseInt(buyBtn.dataset.price);
+          const name = buyBtn.dataset.name;
+          const itemId = buyBtn.dataset.id;
+          handlePurchase(itemId, name, price);
+          return;
+        }
+
+        // 详情弹窗逻辑
+        const card = e.target.closest('.shop-card');
+        if (card) {
+          const itemId = card.dataset.itemId;
+          const item = config.masterPool.find(i => i.id === itemId);
+          if (item) {
+            showItemDetail(item);
+            // Re-bind purchase button inside the detail modal
+            const detailOverlay = document.body.lastElementChild;
+            const detailBuyBtn = detailOverlay.querySelector('.detail-buy-btn');
+            if (detailBuyBtn) {
+              detailBuyBtn.onclick = () => {
+                handlePurchase(item.id, item.name, item.price);
+                detailOverlay.remove();
+              };
+            }
+          }
+        }
+      });
+
+      function handlePurchase(itemId, name, price) {
+        if (config.balance >= price) {
+          config.balance -= price;
+          const balanceVal = document.getElementById('shop-balance-val');
+          if (balanceVal) balanceVal.textContent = config.balance;
+
+          const shopItem = config.masterPool.find(i => i.id === itemId);
+          if (shopItem) {
+            // Update the real GameState
+            const bag = window.GameState.data.stat_data["谢自国"].背包;
+            if (bag[name]) {
+              bag[name].数量 += 1;
+            } else {
+              bag[name] = {
+                数量: 1,
+                描述: shopItem.desc,
+                图标: shopItem.icon,
+                品质: shopItem.rarity
+              };
+            }
+
+            const badge = document.querySelector('.menu-item[data-action="backpack"] .menu-item-badge');
+            if (badge) badge.textContent = Object.keys(bag).length;
+            showToast(`【购买成功：${name}！已存入背包】`, 'success');
+          }
+        } else {
+          showToast('【零七：积分不足。】', 'error');
+        }
+      }
+    }
+
+    initShopModal();
+    return;
+  }
+
+  const itemsHTML = config.items.map(item => `
+    <div class="modal-grid-item">
+      ${iconSVGs[item.icon] || iconSVGs.star}
+      <div class="item-name">${item.name}</div>
+      <div class="item-meta">${item.meta}${item.tag ? ' <span class="tag tag-'+item.tag+'">'+item.tag+'</span>' : ''}</div>
+    </div>
+  `).join('');
+
+  const modalHTML = `
+    <div class="modal-overlay" id="current-modal-overlay">
+      <div class="modal size-medium" role="dialog" aria-labelledby="modal-title">
+        <button class="modal-close" id="modal-close-btn" aria-label="关闭">&times;</button>
+        <div class="modal-title" id="modal-title">${config.title}</div>
+        <div class="modal-subtitle">${config.subtitle}</div>
+        <div class="modal-grid">${itemsHTML}</div>
+      </div>
+    </div>
+  `;
+
+  root.innerHTML = modalHTML;
+
+  const overlay = document.getElementById('current-modal-overlay');
+  const closeBtn = document.getElementById('modal-close-btn');
+
+  function closeModal() {
+    overlay.style.opacity = '0';
+    overlay.querySelector('.modal').style.transform = 'scale(0.92) translateY(20px)';
+    overlay.querySelector('.modal').style.opacity = '0';
+    overlay.querySelector('.modal').style.transition = 'all 0.2s ease-in';
+    setTimeout(() => { root.innerHTML = ''; }, 200);
+  }
+
+  closeBtn.addEventListener('click', closeModal);
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) closeModal(); });
+  document.addEventListener('keydown', function escHandler(e) {
+    if (e.key === 'Escape') { closeModal(); document.removeEventListener('keydown', escHandler); }
+  });
+}
+
+/* ============================================================
+   SEND BUTTON & INPUT
+   ============================================================ */
+const parser = new StreamParser((text, type) => {
+  UIController.appendNarrative(text, type);
+});
+
+async function sendMessage(text) {
+  if (!text.trim()) return;
+
+  UIController.appendNarrative(`\n> ${text}\n`, 'player');
+  UIController.lastPara = null; // Force new paragraph for AI response
+
+  // Simulation of AI stream for Tavernlike demo
+  const simulation = `
+<thinking>玩家输入了：${text}。我需要推动剧情并更新状态。</thinking>
+<maintext>你收到了石磊的邀请，走进了别墅区G栋。这里的装修风格极其冷峻，充满了某种昂贵的科技感。
+敖锐坐在沙发上，手里端着一杯不知名的浅蓝色液体，看到你进来，他微微点头。
+“欢迎来到G栋，”他的声音依旧平淡，但眼神中透出一丝难得的温和，“你的房间在二楼左手边。”</maintext>
+<option>谢谢，我自己去收拾
+敖锐，你在喝什么？
+石磊，刚才谢谢你在门口等我</option>
+<vars>{
+  "谢自国": { "体温": 36.5 },
+  "零七系统": { "时间": "16:00" },
+  "攻略目标": {
+    "敖锐": { "好感度": 1360, "心情": "愉悦" },
+    "石磊": { "好感度": 1410 }
+  }
+}</vars>
+<sum>你进入了别墅并与敖锐、石磊打了招呼。</sum>`;
+
+  let i = 0;
+  parser.reset();
+  const interval = setInterval(() => {
+    if (i < simulation.length) {
+      const chunk = simulation.slice(i, i + 10);
+      parser.parse(chunk);
+      i += 10;
+    } else {
+      clearInterval(interval);
+      // Final processing
+      if (parser.tags.vars) window.GameState.mergeVars(parser.tags.vars);
+      if (parser.tags.option) UIController.renderOptions(parser.tags.option);
+      window.GameState.matchLore(parser.tags.maintext);
+    }
+  }, 50);
+}
+
+document.getElementById('send-btn').addEventListener('click', () => {
+  const input = document.getElementById('player-input');
+  const text = input.value;
+  sendMessage(text);
+  input.value = '';
+});
+document.getElementById('player-input').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') document.getElementById('send-btn').click();
+});
+
+/* ============================================================
+   INIT
+   ============================================================ */
+// Load data from the provided JSON (using global variable for simulation)
+fetch('职业世界 (3).json').then(r => r.json()).then(data => {
+  window.LorebookData = data;
+  window.GameState.loadLorebook();
+  // Use first character data to init if needed
+  if (data.entries) {
+    showToast('世界书已加载', 'success');
+  }
+}).catch(e => console.warn('JSON file not reachable via fetch, using default state.'));
+
+window.GameState.init();
+console.log(
+  '%c◆ 霓虹深渊 · 职业世界 %c| %c中国赛博朋克 %c| %c暗色霓虹 + 传统纹样',
+  'color:#00E5FF;font-size:16px;font-weight:700;',
+  '',
+  'color:#A855F7;font-size:13px;',
+  '',
+  'color:#E2B04A;font-size:12px;'
+);
+console.log('%c桌面端 / 移动端适配 · 原生零依赖 · LLM 交互游戏前端原型', 'color:#5C5878;font-size:11px;');
+</script>
+</body>
+</html>
